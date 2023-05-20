@@ -5,29 +5,27 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.sql.Blob;
-import java.util.List;
+import java.time.LocalDate;
 
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Product {
+public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    private String title;
     private String description;
-    private Double price;
+    private int stars;
+    private LocalDate date;
 
-    @Lob
-    @Column(columnDefinition = "BLOB")
-    private Blob image;
+    @ManyToOne
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
 
-    private String barcodeNumber;
-    private int quantityInStock;
-
-    @OneToMany(mappedBy = "product")
-    private List<Review> reviews;
+    @ManyToOne
+    @JoinColumn(name = "product_id")
+    private Product item;
 }

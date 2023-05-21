@@ -35,7 +35,6 @@ public class ProductController {
                                               @RequestParam("price") double price,
                                               @RequestParam("barcodeNumber") String barcodeNumber,
                                               @RequestParam("quantityInStock") int quantityInStock) {
-        // Convert the MultipartFile to a Blob or store it as needed
         byte[] imageBytes;
         try {
             imageBytes = imageFile.getBytes();

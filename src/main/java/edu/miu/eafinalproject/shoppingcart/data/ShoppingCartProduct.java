@@ -13,5 +13,5 @@ import lombok.NoArgsConstructor;
 public class ShoppingCartProduct {
     private int quantity;
     private Long shoppingCartNumber;
-    private Product product;
+    private Long productNumber;
 }

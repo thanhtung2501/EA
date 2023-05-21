@@ -2,7 +2,8 @@ package edu.miu.eafinalproject.shoppingcart.controllers;
 
 import edu.miu.eafinalproject.product.domain.Address;
 import edu.miu.eafinalproject.product.domain.Customer;
-import edu.miu.eafinalproject.shoppingcart.data.CartItem;
+import edu.miu.eafinalproject.shoppingcart.data.ShoppingCartDTO;
+import edu.miu.eafinalproject.shoppingcart.domain.CartItem;
 import edu.miu.eafinalproject.shoppingcart.data.ShoppingCartProduct;
 import edu.miu.eafinalproject.shoppingcart.data.request.CartRequest;
 import edu.miu.eafinalproject.shoppingcart.domain.Orders;
@@ -21,7 +22,7 @@ public class ShoppingCartController {
     private ShoppingCartService cartService;
 
     @GetMapping("/{shoppingCartNumber}")
-    public ResponseEntity<ShoppingCart> getShoppingCart(@PathVariable Long shoppingCartNumber){
+    public ResponseEntity<ShoppingCartDTO> getShoppingCart(@PathVariable Long shoppingCartNumber){
         return ResponseEntity.ok(cartService.findByShoppingCartNumber(shoppingCartNumber));
     }
 
@@ -31,9 +32,9 @@ public class ShoppingCartController {
     }
 
     @PostMapping("/product")
-    public ResponseEntity<ShoppingCart> addProductToCart(
+    public ResponseEntity<ShoppingCartDTO> addProductToCart(
             @RequestBody ShoppingCartProduct shoppingCartProduct
-    ) {
+    ) throws Exception {
         return ResponseEntity.ok(cartService.addProductToCart(shoppingCartProduct));
     }
 

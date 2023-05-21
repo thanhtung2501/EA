@@ -1,29 +1,25 @@
 package edu.miu.eafinalproject.shoppingcart.domain;
 
-import edu.miu.eafinalproject.product.domain.Product;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
-@Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderItem {
+@Entity
+public class ShoppingCart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "product_id")
-    private Product product;
+    private Long shoppingCartNumber;
 
-    private int quantity;
-    private double discountValue;
+    @Transient
+    private List<CartLine> cartLines = new ArrayList<>();
 
-    @ManyToOne
-    @JoinColumn(name = "order_id")
-    private Orders orders;
 }

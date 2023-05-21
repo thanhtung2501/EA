@@ -1,5 +1,9 @@
 package edu.miu.eafinalproject.product.domain;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import edu.miu.eafinalproject.config.ByteArrayDeserializer;
+import edu.miu.eafinalproject.config.ByteArraySerializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,7 +29,9 @@ public class Product {
 
     @Lob
     @Column(columnDefinition = "LONGBLOB")
-    private Blob image;
+    @JsonSerialize(using = ByteArraySerializer.class)
+    @JsonDeserialize(using = ByteArrayDeserializer.class)
+    private byte[] image;
 
     private String barcodeNumber;
     private int quantityInStock;

@@ -9,8 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.sql.Blob;
-import java.sql.SQLException;
 import java.util.List;
 
 @RestController
@@ -38,10 +36,11 @@ public class ProductController {
                                               @RequestParam("barcodeNumber") String barcodeNumber,
                                               @RequestParam("quantityInStock") int quantityInStock) {
         // Convert the MultipartFile to a Blob or store it as needed
-        Blob imageBlob;
+        byte[] imageBytes;
         try {
-            imageBlob = new javax.sql.rowset.serial.SerialBlob(imageFile.getBytes());
-        } catch (IOException | SQLException e) {
+            imageBytes = imageFile.getBytes();
+        } catch (IOException e) {
+            // Handle the exception appropriately
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
@@ -52,7 +51,7 @@ public class ProductController {
         product.setPrice(price);
         product.setBarcodeNumber(barcodeNumber);
         product.setQuantityInStock(quantityInStock);
-        product.setImage(imageBlob);
+        product.setImage(imageBytes);
 
         return ResponseEntity.ok(productService.addProduct(product));
     }

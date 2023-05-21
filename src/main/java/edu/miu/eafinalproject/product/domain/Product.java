@@ -24,7 +24,7 @@ public class Product {
     private Double price;
 
     @Lob
-    @Column(columnDefinition = "BLOB")
+    @Column(columnDefinition = "LONGBLOB")
     private Blob image;
 
     private String barcodeNumber;

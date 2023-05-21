@@ -3,9 +3,14 @@ package edu.miu.eafinalproject.product.controllers;
 import edu.miu.eafinalproject.product.domain.Product;
 import edu.miu.eafinalproject.product.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.sql.Blob;
+import java.sql.SQLException;
 import java.util.List;
 
 @RestController
@@ -25,7 +30,30 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<Product> addProduct(@RequestBody Product product){
+    public ResponseEntity<Product> addProduct(@RequestParam("image") MultipartFile imageFile,
+                                              @RequestParam("productNumber") Long productNumber,
+                                              @RequestParam("name") String name,
+                                              @RequestParam("description") String description,
+                                              @RequestParam("price") double price,
+                                              @RequestParam("barcodeNumber") String barcodeNumber,
+                                              @RequestParam("quantityInStock") int quantityInStock) {
+        // Convert the MultipartFile to a Blob or store it as needed
+        Blob imageBlob;
+        try {
+            imageBlob = new javax.sql.rowset.serial.SerialBlob(imageFile.getBytes());
+        } catch (IOException | SQLException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
+        Product product = new Product();
+        product.setProductNumber(productNumber);
+        product.setName(name);
+        product.setDescription(description);
+        product.setPrice(price);
+        product.setBarcodeNumber(barcodeNumber);
+        product.setQuantityInStock(quantityInStock);
+        product.setImage(imageBlob);
+
         return ResponseEntity.ok(productService.addProduct(product));
     }
 }

@@ -25,7 +25,7 @@ public class Orders {
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.ALL})
     @JoinColumn(name = "shipping_address_id")
     private Address shippingAddress;
 

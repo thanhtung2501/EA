@@ -1,13 +1,17 @@
 package edu.miu.eafinalproject.shoppingcart.services;
 
 import edu.miu.eafinalproject.product.domain.Address;
+import edu.miu.eafinalproject.product.domain.AddressType;
 import edu.miu.eafinalproject.product.domain.Customer;
 import edu.miu.eafinalproject.product.domain.Product;
+import edu.miu.eafinalproject.product.repositories.AddressRepository;
+import edu.miu.eafinalproject.product.repositories.CustomerRepository;
 import edu.miu.eafinalproject.product.repositories.ProductRepository;
 import edu.miu.eafinalproject.shoppingcart.data.CartItemDTO;
 import edu.miu.eafinalproject.shoppingcart.data.ProductDTO;
 import edu.miu.eafinalproject.shoppingcart.data.ShoppingCartDTO;
 import edu.miu.eafinalproject.shoppingcart.data.ShoppingCartProduct;
+import edu.miu.eafinalproject.shoppingcart.data.request.CartRequest;
 import edu.miu.eafinalproject.shoppingcart.domain.*;
 import edu.miu.eafinalproject.shoppingcart.repositories.CartItemRepository;
 import edu.miu.eafinalproject.shoppingcart.repositories.OrderItemRepository;
@@ -38,6 +42,12 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Autowired
     private CartItemRepository cartItemRepository;
+
+    @Autowired
+    private CustomerRepository customerRepository;
+
+    @Autowired
+    private AddressRepository addressRepository;
 
     @Override
     @Transactional
@@ -111,7 +121,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
             CartItemDTO dto = CartItemDTO.builder()
                     .id(cartItem.getId())
-                    .item(productDTO)
+                    .product(productDTO)
                     .quantity(cartItem.getQuantity())
                     .build();
 
@@ -135,17 +145,23 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Override
     @Transactional
-    public Orders checkoutCart(Customer customer, Address shippingAddress, List<CartItem> cartItems) {
+    public Orders checkoutCart(Long customerId, Address shippingAddress, List<CartRequest.CartItemRequest> cartItems) {
+        Optional<Customer> optionalCustomer = customerRepository.findById(customerId);
+        Customer customer = optionalCustomer.orElse(new Customer());
+
         Orders order = new Orders();
         order.setCustomer(customer);
+
+        shippingAddress.setAddressType(AddressType.SHIPPING);
         order.setShippingAddress(shippingAddress);
+
         order.setOrderState(OrderState.NEW);
 
         List<OrderItem> orderItems = new ArrayList<>();
-        for (CartItem cartItem : cartItems) {
-            long productId = cartItem.getProduct().getId();
-            Product product = productRepository.findById(productId)
-                    .orElseThrow(() -> new IllegalArgumentException("Invalid product ID: " + productId));
+        for (CartRequest.CartItemRequest cartItem : cartItems) {
+            long productNumber = cartItem.getProductNumber();
+            Product product = productRepository.findByProductNumber(productNumber)
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid product number: " + productNumber));
 
             OrderItem orderItem = new OrderItem();
             orderItem.setProduct(product);

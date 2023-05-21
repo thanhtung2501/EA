@@ -40,11 +40,11 @@ public class ShoppingCartController {
 
     @PostMapping("/checkout")
     public ResponseEntity<Orders> checkoutCart(@RequestBody CartRequest cartRequest) {
-        Customer customer = cartRequest.getCustomer();
+        Long customerId = cartRequest.getCustomerId();
         Address shippingAddress = cartRequest.getShippingAddress();
-        List<CartItem> cartItems = cartRequest.getCartItems();
+        List<CartRequest.CartItemRequest> cartItems = cartRequest.getCartItems();
 
-        Orders order = cartService.checkoutCart(customer, shippingAddress, cartItems);
+        Orders order = cartService.checkoutCart(customerId, shippingAddress, cartItems);
 
         return ResponseEntity.ok(order);
     }

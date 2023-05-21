@@ -1,15 +1,20 @@
 package edu.miu.eafinalproject.shoppingcart.data.request;
 
 import edu.miu.eafinalproject.product.domain.Address;
-import edu.miu.eafinalproject.product.domain.Customer;
-import edu.miu.eafinalproject.shoppingcart.domain.CartItem;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
 public class CartRequest {
-    private Customer customer;
+    private Long customerId;
     private Address shippingAddress;
-    private List<CartItem> cartItems;
+    private List<CartItemRequest> cartItems;
+
+    @Data
+    public static class CartItemRequest {
+        private Long productNumber;
+        private Integer quantity;
+        private double discountValue;
+    }
 }

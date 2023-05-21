@@ -1,10 +1,9 @@
 package edu.miu.eafinalproject.shoppingcart.services;
 
 import edu.miu.eafinalproject.product.domain.Address;
-import edu.miu.eafinalproject.product.domain.Customer;
 import edu.miu.eafinalproject.shoppingcart.data.ShoppingCartDTO;
-import edu.miu.eafinalproject.shoppingcart.domain.CartItem;
 import edu.miu.eafinalproject.shoppingcart.data.ShoppingCartProduct;
+import edu.miu.eafinalproject.shoppingcart.data.request.CartRequest;
 import edu.miu.eafinalproject.shoppingcart.domain.Orders;
 import edu.miu.eafinalproject.shoppingcart.domain.ShoppingCart;
 
@@ -15,6 +14,6 @@ public interface ShoppingCartService {
     ShoppingCartDTO findByShoppingCartNumber(Long shoppingCartNumber);
     ShoppingCart createCart(ShoppingCart cart);
 
-    Orders checkoutCart(Customer customer, Address shippingAddress, List<CartItem> cartItems);
+    Orders checkoutCart(Long customerId, Address shippingAddress, List<CartRequest.CartItemRequest> cartItems);
 
 }

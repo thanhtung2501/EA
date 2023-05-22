@@ -1,11 +1,12 @@
 package edu.miu.eafinalproject.shoppingcart.domain;
 
-import edu.miu.eafinalproject.product.domain.Customer;
+import edu.miu.eafinalproject.product.data.Customer;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+//import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +24,8 @@ public class ShoppingCart {
 
     private double totalPrice;
 
-    @ManyToOne
+//    @ManyToOne
+    @Transient
     private Customer customer;
 
     @Transient

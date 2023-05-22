@@ -1,5 +1,6 @@
 package edu.miu.eafinalproject.services;
 
+import edu.miu.eafinalproject.data.ProductDTO;
 import edu.miu.eafinalproject.domain.Product;
 import edu.miu.eafinalproject.repositories.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +20,24 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product getProduct(Long productNumber) {
+    public ProductDTO getProduct(Long productNumber) {
         Optional<Product> optionalProduct = productRepository.findByProductNumber(productNumber);
-        return optionalProduct.orElse(new Product());
+        Product product = optionalProduct.orElse(new Product());
+
+        return getProductDTO(product);
+    }
+
+    private ProductDTO getProductDTO(Product product) {
+        return ProductDTO.builder()
+                .id(product.getId())
+                .barcodeNumber(product.getBarcodeNumber())
+                .reviews(product.getReviews())
+                .description(product.getDescription())
+                .name(product.getName())
+                .price(product.getPrice())
+                .quantityInStock(product.getQuantityInStock())
+                .productNumber(product.getProductNumber())
+                .build();
     }
 
     @Override

@@ -1,8 +1,15 @@
 
 spring:
+  security:
+    user:
+      name: admin
+      password: password
   jpa:
     properties:
       hibernate:
+        naming:
+          physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+          implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
         dialect: org.hibernate.dialect.MySQL5Dialect
     hibernate:
       ddl-auto: create
@@ -11,7 +18,18 @@ spring:
     username: root
     password: P@ssw0rd
     driver-class-name: com.mysql.cj.jdbc.Driver
+  application:
+    name: shopping-cart-service
 
+api-client:
+  product:
+    name: product-service
+    url: http://localhost:8181
+  customer:
+    name: customer-service
+    url: http://localhost:8080
+#  username: user
+#  password: pass
 
 server:
   port: 8282

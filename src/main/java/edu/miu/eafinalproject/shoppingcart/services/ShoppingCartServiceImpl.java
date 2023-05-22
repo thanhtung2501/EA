@@ -228,9 +228,9 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     private CustomerDTO getCustomerDTO(Customer customer) {
         CustomerDTO customerDTO = new CustomerDTO();
         customerDTO.setId(customer.getId());
-        customerDTO.setEmailAddress(customerDTO.getEmailAddress());
-        customerDTO.setFirstName(customerDTO.getFirstName());
-        customerDTO.setLastName(customerDTO.getLastName());
+        customerDTO.setEmailAddress(customer.getEmailAddress());
+        customerDTO.setFirstName(customer.getFirstName());
+        customerDTO.setLastName(customer.getLastName());
         customerDTO.setBillingAddress(getBillingAddressDTO(customer.getBillingAddress()));
 
         return customerDTO;

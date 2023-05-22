@@ -139,7 +139,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Override
     @Transactional
-    public OrderDTO checkoutCart(CartRequest cartRequest) throws Exception {
+    public OrderDTO checkoutCart(CartRequest cartRequest, OrderState orderState) throws Exception {
         Long customerId = cartRequest.getCustomerId();
         List<CartRequest.CartItemRequest> cartItems = cartRequest.getCartItems();
 
@@ -158,7 +158,12 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         Orders order = new Orders();
         order.setCustomer(customer);
         order.setShippingAddress(shippingAddress);
-        order.setOrderState(OrderState.NEW);
+
+        if (orderState == null) {
+            order.setOrderState(OrderState.NEW);
+        } else {
+            order.setOrderState(orderState);
+        }
 
         for (CartRequest.CartItemRequest cartItem : cartItems) {
             long productNumber = cartItem.getProductNumber();

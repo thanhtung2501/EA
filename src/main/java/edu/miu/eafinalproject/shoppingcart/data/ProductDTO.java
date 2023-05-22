@@ -10,4 +10,5 @@ import lombok.*;
 public class ProductDTO {
     private Long productNumber;
     private String productName;
+    private double price;
 }

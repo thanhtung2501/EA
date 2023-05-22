@@ -1,5 +1,6 @@
 package edu.miu.eafinalproject.shoppingcart.data;
 
+import edu.miu.eafinalproject.product.data.CustomerDTO;
 import lombok.*;
 
 import java.util.List;
@@ -11,5 +12,7 @@ import java.util.List;
 @Builder
 public class ShoppingCartDTO {
     private Long shoppingCartNumber;
-    private List<CartItemDTO> cartItems;
+    private List<OrderItemDTO> orderItems;
+    private double totalPrice;
+    private CustomerDTO customer;
 }

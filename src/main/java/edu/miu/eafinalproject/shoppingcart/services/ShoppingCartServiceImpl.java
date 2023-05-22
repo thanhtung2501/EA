@@ -12,15 +12,13 @@ import edu.miu.eafinalproject.product.repositories.ProductRepository;
 import edu.miu.eafinalproject.shoppingcart.data.*;
 import edu.miu.eafinalproject.shoppingcart.data.request.CartRequest;
 import edu.miu.eafinalproject.shoppingcart.domain.*;
-import edu.miu.eafinalproject.shoppingcart.repositories.CartItemRepository;
-import edu.miu.eafinalproject.shoppingcart.repositories.OrderItemRepository;
 import edu.miu.eafinalproject.shoppingcart.repositories.OrdersRepository;
 import edu.miu.eafinalproject.shoppingcart.repositories.ShoppingCartRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -38,19 +36,10 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     private OrdersRepository ordersRepository;
 
     @Autowired
-    private OrderItemRepository orderItemRepository;
-
-    @Autowired
-    private CartItemRepository cartItemRepository;
-
-    @Autowired
     private CustomerRepository customerRepository;
 
     @Autowired
     private AddressRepository addressRepository;
-
-    @Autowired
-    private EntityManager entityManager;
 
     @Override
     @Transactional
@@ -87,9 +76,6 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         newCartItem.setQuantity(quantity);
         newCartItem.setCart(cart);
 
-        // save cart item before adding it to cart to avoid the error "object references an unsaved transient instance - save the transient instance before flushing"
-        cartItemRepository.save(newCartItem);
-
         cart.getCartItems().add(newCartItem);
 
         shoppingCartRepository.save(cart);
@@ -98,8 +84,12 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     private ShoppingCartDTO getShoppingCartDTO(ShoppingCart cart) {
+        List<OrderItemDTO> orderItemDTOs = getOrderItemDTOsFromCartItems(cart.getCartItems());
+
         return ShoppingCartDTO.builder()
-                .cartItems(getCartItemDTOs(cart.getCartItems()))
+                .customer(getCustomerDTO(cart.getCustomer()))
+                .totalPrice(getTotalPrice(orderItemDTOs))
+                .orderItems(orderItemDTOs)
                 .shoppingCartNumber(cart.getShoppingCartNumber())
                 .build();
     }
@@ -109,21 +99,20 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         Optional<ShoppingCart> optionalShoppingCart = shoppingCartRepository.findByShoppingCartNumber(shoppingCartNumber);
         ShoppingCart shoppingCart = optionalShoppingCart.orElse(new ShoppingCart());
 
-        List<CartItemDTO> cartItemDTOS = getCartItemDTOs(shoppingCart.getCartItems());
+        List<OrderItemDTO> cartItemDTOS = getOrderItemDTOsFromCartItems(shoppingCart.getCartItems());
 
         return ShoppingCartDTO.builder()
                 .shoppingCartNumber(shoppingCartNumber)
-                .cartItems(cartItemDTOS)
+                .orderItems(cartItemDTOS)
                 .build();
     }
 
-    private List<CartItemDTO> getCartItemDTOs(List<CartItem> cartItems) {
-        List<CartItemDTO> result = new ArrayList<>();
+    private List<OrderItemDTO> getOrderItemDTOsFromCartItems(List<CartItem> cartItems) {
+        List<OrderItemDTO> result = new ArrayList<>();
         for (CartItem cartItem : cartItems) {
             ProductDTO productDTO = getProductDTO(cartItem.getProduct());
 
-            CartItemDTO dto = CartItemDTO.builder()
-                    .id(cartItem.getId())
+            OrderItemDTO dto = OrderItemDTO.builder()
                     .product(productDTO)
                     .quantity(cartItem.getQuantity())
                     .build();
@@ -136,6 +125,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     private ProductDTO getProductDTO(Product product) {
         return ProductDTO.builder()
+                .price(product.getPrice())
                 .productName(product.getName())
                 .productNumber(product.getProductNumber())
                 .build();
@@ -185,15 +175,31 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
         ordersRepository.save(order);
 
-        orderItemRepository.saveAll(order.getOrderItems());
-
         OrderDTO orderDTO = new OrderDTO();
+        List<OrderItemDTO> orderItemDTOs = getOrderItemDTOs(order.getOrderItems());
+
+        orderDTO.setOrderDate(LocalDate.now());
+        orderDTO.setTotalPrice(getTotalPrice(orderItemDTOs));
         orderDTO.setCustomer(getCustomerDTO(customer));
         orderDTO.setOrderState(OrderState.NEW);
-        orderDTO.setOrderItems(getOrderItemDTOs(order.getOrderItems()));
+        orderDTO.setOrderItems(orderItemDTOs);
         orderDTO.setShippingAddress(getAddressDTO(shippingAddress));
 
         return orderDTO;
+    }
+
+    private double getTotalPrice(List<OrderItemDTO> orderItemDTOs) {
+        double total = 0.0;
+
+        for (OrderItemDTO itemDTO : orderItemDTOs) {
+            double price = itemDTO.getProduct().getPrice();
+            int quantity = itemDTO.getQuantity();
+            double discountValue = itemDTO.getDiscountValue();
+
+            total += (price * quantity) - (price * quantity * discountValue/100);
+        }
+
+        return total;
     }
 
     private AddressDTO getAddressDTO(Address shippingAddress) {
@@ -213,11 +219,11 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     private List<OrderItemDTO> getOrderItemDTOs(List<OrderItem> orderItems) {
         List<OrderItemDTO> result = new ArrayList<>();
         for (OrderItem orderItem : orderItems) {
-            OrderItemDTO orderItemDTO = new OrderItemDTO();
-            orderItemDTO.setDiscountValue(orderItem.getDiscountValue());
-            orderItemDTO.setProduct(getProductDTO(orderItem.getProduct()));
-            orderItemDTO.setQuantity(orderItem.getQuantity());
-            orderItemDTO.setId(orderItem.getId());
+            OrderItemDTO orderItemDTO = OrderItemDTO.builder()
+                    .discountValue(orderItem.getDiscountValue())
+                    .product(getProductDTO(orderItem.getProduct()))
+                    .quantity(orderItem.getQuantity())
+                    .build();
 
             result.add(orderItemDTO);
         }
@@ -226,11 +232,15 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     private CustomerDTO getCustomerDTO(Customer customer) {
+        if (customer == null) {
+            return null;
+        }
+
         CustomerDTO customerDTO = new CustomerDTO();
         customerDTO.setId(customer.getId());
-        customerDTO.setEmailAddress(customerDTO.getEmailAddress());
-        customerDTO.setFirstName(customerDTO.getFirstName());
-        customerDTO.setLastName(customerDTO.getLastName());
+        customerDTO.setEmailAddress(customer.getEmailAddress());
+        customerDTO.setFirstName(customer.getFirstName());
+        customerDTO.setLastName(customer.getLastName());
         customerDTO.setBillingAddress(getBillingAddressDTO(customer.getBillingAddress()));
 
         return customerDTO;

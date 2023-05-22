@@ -1,5 +1,6 @@
 package edu.miu.eafinalproject.shoppingcart.domain;
 
+import edu.miu.eafinalproject.product.domain.Customer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,7 +21,12 @@ public class ShoppingCart {
     @Column(unique = true)
     private Long shoppingCartNumber;
 
-    @OneToMany(mappedBy = "cart", cascade = {CascadeType.ALL, CascadeType.PERSIST}, orphanRemoval = true)
+    private double totalPrice;
+
+    @ManyToOne
+    private Customer customer;
+
+    @Transient
     private List<CartItem> cartItems = new ArrayList<>();
 
 }

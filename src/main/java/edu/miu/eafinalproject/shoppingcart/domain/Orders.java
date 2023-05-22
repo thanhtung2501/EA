@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +23,9 @@ public class Orders {
     @Enumerated(EnumType.STRING)
     private OrderState orderState;
 
+    private LocalDate orderDate;
+    private double totalPrice;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id")
     private Customer customer;
@@ -30,7 +34,7 @@ public class Orders {
     @JoinColumn(name = "shipping_address_id")
     private Address shippingAddress;
 
-    @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL)
+    @Transient
     private List<OrderItem> orderItems = new ArrayList<>();
 
     public void placeOrder() {

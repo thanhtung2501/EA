@@ -1,6 +1,7 @@
 package edu.miu.eafinalproject.shoppingcart.data.request;
 
 import edu.miu.eafinalproject.product.data.AddressDTO;
+import edu.miu.eafinalproject.shoppingcart.domain.OrderState;
 import lombok.Data;
 
 import java.util.List;
@@ -10,6 +11,7 @@ public class CartRequest {
     private Long customerId;
     private Long shoppingCartNumber;
     private Long shippingAddressId;
+    private OrderState orderState;
     private List<CartItemRequest> cartItems;
 
     @Data

@@ -3,6 +3,7 @@ package edu.miu.eafinalproject.shoppingcart.controllers;
 import edu.miu.eafinalproject.shoppingcart.data.OrderDTO;
 import edu.miu.eafinalproject.shoppingcart.data.ShoppingCartProduct;
 import edu.miu.eafinalproject.shoppingcart.data.request.CartRequest;
+import edu.miu.eafinalproject.shoppingcart.domain.OrderState;
 import edu.miu.eafinalproject.shoppingcart.domain.ShoppingCart;
 import edu.miu.eafinalproject.shoppingcart.services.ShoppingCartService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,14 +46,15 @@ public class ShoppingCartController {
         }
     }
 
-    @PostMapping("/checkout")
-    public ResponseEntity<?> checkoutCart(@RequestBody CartRequest cartRequest) {
+    @PostMapping("/checkout/{orderState}")
+    public ResponseEntity<?> checkoutCart(@RequestBody CartRequest cartRequest, @PathVariable OrderState orderState) {
         try {
-            OrderDTO order = cartService.checkoutCart(cartRequest);
+            OrderDTO order = cartService.checkoutCart(cartRequest, orderState);
 
             return ResponseEntity.ok(order);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
+
 }

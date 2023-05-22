@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
 
 @RestController
 @RequestMapping("/products")
@@ -18,17 +17,25 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping
-    public ResponseEntity<List<Product>> getAllProducts(){
-        return ResponseEntity.ok(productService.getAllProducts());
+    public ResponseEntity<?> getAllProducts(){
+        try {
+            return ResponseEntity.ok(productService.getAllProducts());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 
     @GetMapping("/{productNumber}")
-    public ResponseEntity<Product> getProduct(@PathVariable("productNumber") Long productNumber){
-        return ResponseEntity.ok(productService.getProduct(productNumber));
+    public ResponseEntity<?> getProduct(@PathVariable("productNumber") Long productNumber){
+        try {
+            return ResponseEntity.ok(productService.getProduct(productNumber));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 
     @PostMapping
-    public ResponseEntity<Product> addProduct(@RequestParam("image") MultipartFile imageFile,
+    public ResponseEntity<?> addProduct(@RequestParam("image") MultipartFile imageFile,
                                               @RequestParam("productNumber") Long productNumber,
                                               @RequestParam("name") String name,
                                               @RequestParam("description") String description,
@@ -52,6 +59,10 @@ public class ProductController {
         product.setQuantityInStock(quantityInStock);
         product.setImage(imageBytes);
 
-        return ResponseEntity.ok(productService.addProduct(product));
+        try {
+            return ResponseEntity.ok(productService.addProduct(product));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 }

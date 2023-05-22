@@ -17,6 +17,7 @@ public class ShoppingCart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
     private Long shoppingCartNumber;
 
     @OneToMany(mappedBy = "cart", cascade = {CascadeType.ALL, CascadeType.PERSIST}, orphanRemoval = true)

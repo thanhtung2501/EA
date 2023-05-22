@@ -1,6 +1,7 @@
 package edu.miu.eafinalproject.shoppingcart.services;
 
 import edu.miu.eafinalproject.product.domain.Address;
+import edu.miu.eafinalproject.shoppingcart.data.OrderDTO;
 import edu.miu.eafinalproject.shoppingcart.data.ShoppingCartDTO;
 import edu.miu.eafinalproject.shoppingcart.data.ShoppingCartProduct;
 import edu.miu.eafinalproject.shoppingcart.data.request.CartRequest;
@@ -14,6 +15,6 @@ public interface ShoppingCartService {
     ShoppingCartDTO findByShoppingCartNumber(Long shoppingCartNumber);
     ShoppingCart createCart(ShoppingCart cart);
 
-    Orders checkoutCart(Long customerId, Address shippingAddress, List<CartRequest.CartItemRequest> cartItems);
+    OrderDTO checkoutCart(CartRequest cartRequest) throws Exception;
 
 }

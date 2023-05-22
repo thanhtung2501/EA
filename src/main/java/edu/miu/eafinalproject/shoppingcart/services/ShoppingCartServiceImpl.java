@@ -1,5 +1,7 @@
 package edu.miu.eafinalproject.shoppingcart.services;
 
+import edu.miu.eafinalproject.product.data.AddressDTO;
+import edu.miu.eafinalproject.product.data.CustomerDTO;
 import edu.miu.eafinalproject.product.domain.Address;
 import edu.miu.eafinalproject.product.domain.AddressType;
 import edu.miu.eafinalproject.product.domain.Customer;
@@ -7,10 +9,7 @@ import edu.miu.eafinalproject.product.domain.Product;
 import edu.miu.eafinalproject.product.repositories.AddressRepository;
 import edu.miu.eafinalproject.product.repositories.CustomerRepository;
 import edu.miu.eafinalproject.product.repositories.ProductRepository;
-import edu.miu.eafinalproject.shoppingcart.data.CartItemDTO;
-import edu.miu.eafinalproject.shoppingcart.data.ProductDTO;
-import edu.miu.eafinalproject.shoppingcart.data.ShoppingCartDTO;
-import edu.miu.eafinalproject.shoppingcart.data.ShoppingCartProduct;
+import edu.miu.eafinalproject.shoppingcart.data.*;
 import edu.miu.eafinalproject.shoppingcart.data.request.CartRequest;
 import edu.miu.eafinalproject.shoppingcart.domain.*;
 import edu.miu.eafinalproject.shoppingcart.repositories.CartItemRepository;
@@ -21,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -48,6 +48,9 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Autowired
     private AddressRepository addressRepository;
+
+    @Autowired
+    private EntityManager entityManager;
 
     @Override
     @Transactional
@@ -145,19 +148,27 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Override
     @Transactional
-    public Orders checkoutCart(Long customerId, Address shippingAddress, List<CartRequest.CartItemRequest> cartItems) {
+    public OrderDTO checkoutCart(CartRequest cartRequest) throws Exception {
+        Long customerId = cartRequest.getCustomerId();
+        List<CartRequest.CartItemRequest> cartItems = cartRequest.getCartItems();
+
+        Optional<Address> optionalAddress = addressRepository.findById(cartRequest.getShippingAddressId());
+        Address shippingAddress = optionalAddress.orElse(new Address());
+        shippingAddress.setAddressType(AddressType.SHIPPING);
+
         Optional<Customer> optionalCustomer = customerRepository.findById(customerId);
-        Customer customer = optionalCustomer.orElse(new Customer());
+        // check if customer is existed. if not, throw exception
+        if (optionalCustomer.isEmpty()) {
+            throw new Exception("Customer does not exist. Please register");
+        }
+
+        Customer customer = optionalCustomer.get();
 
         Orders order = new Orders();
         order.setCustomer(customer);
-
-        shippingAddress.setAddressType(AddressType.SHIPPING);
         order.setShippingAddress(shippingAddress);
-
         order.setOrderState(OrderState.NEW);
 
-        List<OrderItem> orderItems = new ArrayList<>();
         for (CartRequest.CartItemRequest cartItem : cartItems) {
             long productNumber = cartItem.getProductNumber();
             Product product = productRepository.findByProductNumber(productNumber)
@@ -169,13 +180,72 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             orderItem.setDiscountValue(cartItem.getDiscountValue());
             orderItem.setOrders(order);
 
-            orderItems.add(orderItem);
+            order.getOrderItems().add(orderItem);
         }
-
-        orderItemRepository.saveAll(orderItems);
 
         ordersRepository.save(order);
 
-        return order;
+        orderItemRepository.saveAll(order.getOrderItems());
+
+        OrderDTO orderDTO = new OrderDTO();
+        orderDTO.setCustomer(getCustomerDTO(customer));
+        orderDTO.setOrderState(OrderState.NEW);
+        orderDTO.setOrderItems(getOrderItemDTOs(order.getOrderItems()));
+        orderDTO.setShippingAddress(getAddressDTO(shippingAddress));
+
+        return orderDTO;
+    }
+
+    private AddressDTO getAddressDTO(Address shippingAddress) {
+        AddressDTO dto = new AddressDTO();
+        dto.setId(shippingAddress.getId());
+        dto.setPostalCode(shippingAddress.getPostalCode());
+        dto.setCity(shippingAddress.getCity());
+        dto.setState(shippingAddress.getState());
+        dto.setCountry(shippingAddress.getCountry());
+        dto.setStreet(shippingAddress.getStreet());
+        dto.setAddressType(shippingAddress.getAddressType());
+        dto.setCountry(shippingAddress.getCountry());
+
+        return dto;
+    }
+
+    private List<OrderItemDTO> getOrderItemDTOs(List<OrderItem> orderItems) {
+        List<OrderItemDTO> result = new ArrayList<>();
+        for (OrderItem orderItem : orderItems) {
+            OrderItemDTO orderItemDTO = new OrderItemDTO();
+            orderItemDTO.setDiscountValue(orderItem.getDiscountValue());
+            orderItemDTO.setProduct(getProductDTO(orderItem.getProduct()));
+            orderItemDTO.setQuantity(orderItem.getQuantity());
+            orderItemDTO.setId(orderItem.getId());
+
+            result.add(orderItemDTO);
+        }
+
+        return result;
+    }
+
+    private CustomerDTO getCustomerDTO(Customer customer) {
+        CustomerDTO customerDTO = new CustomerDTO();
+        customerDTO.setId(customer.getId());
+        customerDTO.setEmailAddress(customerDTO.getEmailAddress());
+        customerDTO.setFirstName(customerDTO.getFirstName());
+        customerDTO.setLastName(customerDTO.getLastName());
+        customerDTO.setBillingAddress(getBillingAddressDTO(customer.getBillingAddress()));
+
+        return customerDTO;
+    }
+
+    private AddressDTO getBillingAddressDTO(Address billingAddress) {
+        AddressDTO addressDTO = new AddressDTO();
+        addressDTO.setAddressType(billingAddress.getAddressType());
+        addressDTO.setId(billingAddress.getId());
+        addressDTO.setCity(billingAddress.getCity());
+        addressDTO.setState(billingAddress.getState());
+        addressDTO.setCountry(billingAddress.getCountry());
+        addressDTO.setStreet(billingAddress.getStreet());
+        addressDTO.setPostalCode(billingAddress.getPostalCode());
+
+        return addressDTO;
     }
 }

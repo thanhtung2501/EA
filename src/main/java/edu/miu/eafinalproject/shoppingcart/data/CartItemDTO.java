@@ -1,14 +1,15 @@
 package edu.miu.eafinalproject.shoppingcart.data;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CartItem {
-    private Long productId;
+@ToString
+@Builder
+public class CartItemDTO {
+    private Long id;
+    private ProductDTO product;
     private int quantity;
     private double discountValue;
 }

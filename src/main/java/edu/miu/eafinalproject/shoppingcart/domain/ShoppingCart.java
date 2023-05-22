@@ -17,9 +17,10 @@ public class ShoppingCart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
     private Long shoppingCartNumber;
 
-    @Transient
-    private List<CartLine> cartLines = new ArrayList<>();
+    @OneToMany(mappedBy = "cart", cascade = {CascadeType.ALL, CascadeType.PERSIST}, orphanRemoval = true)
+    private List<CartItem> cartItems = new ArrayList<>();
 
 }

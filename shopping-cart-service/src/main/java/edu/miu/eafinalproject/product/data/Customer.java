@@ -10,7 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Customer {
-    private Long id;
+    private long id;
     private String firstName;
     private String lastName;
     private String emailAddress;

@@ -12,10 +12,10 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class Product {
-    private Long id;
-    private Long productNumber;
+//@JsonIgnoreProperties(ignoreUnknown = true)
+public class ProductResponse {
+    private long id;
+    private long productNumber;
     private String name;
     private String description;
     private Double price;

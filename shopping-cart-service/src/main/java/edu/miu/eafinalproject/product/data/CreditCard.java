@@ -7,16 +7,16 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-@Entity
+//@Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreditCard {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
 
-    @Column(unique = true)
+//    @Column(unique = true)
     private String number;
     private LocalDate expirationDate;
     private String securityCode;

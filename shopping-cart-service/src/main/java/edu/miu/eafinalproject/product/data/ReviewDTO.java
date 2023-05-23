@@ -13,5 +13,5 @@ public class ReviewDTO {
 
     private Customer customer;
 
-    private Product product;
+    private ProductResponse productResponse;
 }

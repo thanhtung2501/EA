@@ -75,12 +75,12 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     private ShoppingCartDTO getShoppingCartDTO(ShoppingCart cart) {
-        Customer customer = customerServiceFeignClient.findByCustomerId(cart.getCustomerId());
+        CustomerResponse customerResponse = customerServiceFeignClient.findByCustomerId(cart.getCustomerId());
 
         List<OrderItemDTO> orderItemDTOs = getOrderItemDTOsFromCartItems(cart.getCartItems());
 
         return ShoppingCartDTO.builder()
-                .customer(getCustomerDTO(customer))
+                .customer(getCustomerDTO(customerResponse))
                 .totalPrice(getTotalPrice(orderItemDTOs))
                 .orderItems(orderItemDTOs)
                 .shoppingCartNumber(cart.getShoppingCartNumber())
@@ -139,18 +139,18 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
 //        Optional<Address> optionalAddress = addressRepository.findById(cartRequest.getShippingAddressId());
 //        Address shippingAddress = optionalAddress.orElse(new Address());
-        Address shippingAddress = new Address();
-        shippingAddress.setAddressType(AddressType.SHIPPING);
+        AddressResponse shippingAddressResponse = new AddressResponse();
+        shippingAddressResponse.setAddressType(AddressType.SHIPPING);
 
-        Customer customer = customerServiceFeignClient.findByCustomerId(customerId);
+        CustomerResponse customerResponse = customerServiceFeignClient.findByCustomerId(customerId);
         // check if customer is existed. if not, throw exception
-        if (customer.getId() == 0) {
+        if (customerResponse.getId() == 0) {
             throw new Exception("Customer does not exist. Please register");
         }
 
         Orders order = new Orders();
-        order.setCustomer(customer);
-        order.setShippingAddress(shippingAddress);
+        order.setCustomerResponse(customerResponse);
+        order.setShippingAddressResponse(shippingAddressResponse);
 
         if (orderState == null) {
             order.setOrderState(OrderState.NEW);
@@ -178,10 +178,10 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
         orderDTO.setOrderDate(LocalDate.now());
         orderDTO.setTotalPrice(getTotalPrice(orderItemDTOs));
-        orderDTO.setCustomer(getCustomerDTO(customer));
+        orderDTO.setCustomer(getCustomerDTO(customerResponse));
         orderDTO.setOrderState(OrderState.NEW);
         orderDTO.setOrderItems(orderItemDTOs);
-        orderDTO.setShippingAddress(getAddressDTO(shippingAddress));
+        orderDTO.setShippingAddressResponse(shippingAddressResponse);
 
         return orderDTO;
     }
@@ -198,20 +198,6 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         }
 
         return total;
-    }
-
-    private AddressDTO getAddressDTO(Address shippingAddress) {
-        AddressDTO dto = new AddressDTO();
-        dto.setId(shippingAddress.getId());
-        dto.setPostalCode(shippingAddress.getPostalCode());
-        dto.setCity(shippingAddress.getCity());
-        dto.setState(shippingAddress.getState());
-        dto.setCountry(shippingAddress.getCountry());
-        dto.setStreet(shippingAddress.getStreet());
-        dto.setAddressType(shippingAddress.getAddressType());
-        dto.setCountry(shippingAddress.getCountry());
-
-        return dto;
     }
 
     private List<OrderItemDTO> getOrderItemDTOs(List<OrderItem> orderItems) {
@@ -231,35 +217,19 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         return result;
     }
 
-    private CustomerDTO getCustomerDTO(Customer customer) {
-        if (customer == null) {
+    private CustomerDTO getCustomerDTO(CustomerResponse customerResponse) {
+        if (customerResponse == null) {
             return null;
         }
 
         CustomerDTO customerDTO = new CustomerDTO();
-        customerDTO.setId(customer.getId());
-        customerDTO.setEmailAddress(customer.getEmailAddress());
-        customerDTO.setFirstName(customer.getFirstName());
-        customerDTO.setLastName(customer.getLastName());
-        customerDTO.setBillingAddress(getBillingAddressDTO(customer.getBillingAddress()));
+        customerDTO.setId(customerResponse.getId());
+        customerDTO.setEmailAddress(customerResponse.getEmailAddress());
+        customerDTO.setFirstName(customerResponse.getFirstName());
+        customerDTO.setLastName(customerResponse.getLastName());
+        customerDTO.setBillingAddressResponse(customerResponse.getBillingAddressResponse());
 
         return customerDTO;
     }
 
-    private AddressDTO getBillingAddressDTO(Address billingAddress) {
-        if (billingAddress == null) {
-            return new AddressDTO();
-        }
-
-        AddressDTO addressDTO = new AddressDTO();
-        addressDTO.setAddressType(billingAddress.getAddressType());
-        addressDTO.setId(billingAddress.getId());
-        addressDTO.setCity(billingAddress.getCity());
-        addressDTO.setState(billingAddress.getState());
-        addressDTO.setCountry(billingAddress.getCountry());
-        addressDTO.setStreet(billingAddress.getStreet());
-        addressDTO.setPostalCode(billingAddress.getPostalCode());
-
-        return addressDTO;
-    }
 }

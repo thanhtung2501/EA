@@ -1,6 +1,5 @@
 package edu.miu.eafinalproject.shoppingcart.domain;
 
-import edu.miu.eafinalproject.product.data.Customer;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

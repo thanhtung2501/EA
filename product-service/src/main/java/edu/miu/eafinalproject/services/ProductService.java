@@ -6,7 +6,12 @@ import edu.miu.eafinalproject.domain.Product;
 import java.util.List;
 
 public interface ProductService {
-    List<Product> getAllProducts();
+    List<ProductDTO> getAllProducts();
     ProductDTO getProduct(Long id);
-    Product addProduct(Product product);
+    ProductDTO addProduct(ProductDTO product);
+    ProductDTO updateProduct(ProductDTO updateProduct);
+
+    void deleteProduct(Long id);
+
+
 }

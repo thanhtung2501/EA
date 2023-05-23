@@ -14,34 +14,43 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private  ConverterAdaptor converterAdaptor;
+
     @Override
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    public List<ProductDTO> getAllProducts() {
+        return converterAdaptor.convertProductListToProductDTOList(productRepository.findAll());
     }
 
     @Override
     public ProductDTO getProduct(Long productNumber) {
         Optional<Product> optionalProduct = productRepository.findByProductNumber(productNumber);
         Product product = optionalProduct.orElse(new Product());
-
-        return getProductDTO(product);
-    }
-
-    private ProductDTO getProductDTO(Product product) {
-        return ProductDTO.builder()
-                .id(product.getId())
-                .barcodeNumber(product.getBarcodeNumber())
-                .reviews(product.getReviews())
-                .description(product.getDescription())
-                .name(product.getName())
-                .price(product.getPrice())
-                .quantityInStock(product.getQuantityInStock())
-                .productNumber(product.getProductNumber())
-                .build();
+        return converterAdaptor.convertProductToProductDTO(product);
     }
 
     @Override
-    public Product addProduct(Product product) {
-        return productRepository.save(product);
+    public ProductDTO addProduct(ProductDTO productDTO) {
+        Product product = converterAdaptor.convertProductDTOtoProduct(productDTO);
+        return converterAdaptor.convertProductToProductDTO(productRepository.save(product)) ;
+    }
+
+    @Override
+    public ProductDTO updateProduct(ProductDTO updateProductDTO) {
+        Optional<Product> optionalProduct = productRepository.findByProductNumber(updateProductDTO.getProductNumber());
+        Product existingProduct = optionalProduct.orElseThrow(()-> new IllegalArgumentException("Product not found"));
+        existingProduct.setName(updateProductDTO.getName());
+        existingProduct.setDescription(updateProductDTO.getDescription());
+        existingProduct.setPrice(updateProductDTO.getPrice());
+        existingProduct.setBarcodeNumber(updateProductDTO.getBarcodeNumber());
+        existingProduct.setQuantityInStock(updateProductDTO.getQuantityInStock());
+        existingProduct.setImage(updateProductDTO.getImage());
+        return converterAdaptor.convertProductToProductDTO(productRepository.save(existingProduct));
+
+    }
+
+    @Override
+    public void deleteProduct(Long id) {
+        productRepository.deleteById(id);
     }
 }

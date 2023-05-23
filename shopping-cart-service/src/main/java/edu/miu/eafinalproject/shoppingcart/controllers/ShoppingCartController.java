@@ -48,7 +48,7 @@ public class ShoppingCartController {
 
     @DeleteMapping("/product/{productNumber}")
     public ResponseEntity<?> deleteProductFromCart(@RequestBody ShoppingCartProduct shoppingCartProduct,
-                                                   @PathVariable Long productNumber) {
+                                                   @PathVariable("productNumber") Long productNumber) {
         try {
             return ResponseEntity.ok(cartService.removeProductFromCart(shoppingCartProduct, productNumber));
         } catch (Exception e) {

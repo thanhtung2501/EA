@@ -8,9 +8,10 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+//@Entity
 public class OrderItem {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private Long productNumber;
@@ -18,7 +19,7 @@ public class OrderItem {
     private int quantity;
     private double discountValue;
 
-    @ManyToOne
-    @JoinColumn(name = "order_id")
+//    @ManyToOne
+//    @JoinColumn(name = "order_id")
     private Orders orders;
 }

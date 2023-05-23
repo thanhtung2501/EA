@@ -1,6 +1,6 @@
 package edu.miu.eafinalproject.shoppingcart.domain;
 
-import edu.miu.eafinalproject.product.data.Product;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,9 +10,19 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
+@Entity
 public class CartItem {
-    private Product product;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private long productNumber;
+
+    @ManyToOne
+    @JoinColumn(name = "cart_id")
     private ShoppingCart cart;
+
     private int quantity;
+
     private double discountValue;
 }

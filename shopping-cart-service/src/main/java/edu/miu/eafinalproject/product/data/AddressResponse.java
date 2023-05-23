@@ -1,23 +1,16 @@
-package edu.miu.eafinalproject.product.domain;
+package edu.miu.eafinalproject.product.data;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
 
-@Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Address {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Enumerated(EnumType.STRING)
+public class AddressResponse {
+    private long id;
     private AddressType addressType;
-
     private String street;
     private String city;
     private String state;

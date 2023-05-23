@@ -1,7 +1,5 @@
 package edu.miu.eafinalproject.data;
 
-import edu.miu.eafinalproject.domain.Customer;
-import edu.miu.eafinalproject.domain.Product;
 import lombok.Builder;
 import lombok.Data;
 
@@ -15,7 +13,7 @@ public class ReviewDTO {
     private int stars;
     private LocalDate date;
 
-    private Customer customer;
+    private long customerId;
 
-    private Product product;
+    private ProductDTO product;
 }

@@ -1,0 +1,22 @@
+
+server:
+  port: 9000
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: customer-service
+          uri: http://localhost:8080/
+          predicates:
+            - Path=/customers/**, /reviews/**, /credit-cards/**, /address/**
+
+        - id: product-service
+          uri: http://localhost:8181/
+          predicates:
+            - Path=/products/**
+
+        - id: shopping-cart-service
+          uri: http://localhost:8282/
+          predicates:
+            - Path=/carts/**

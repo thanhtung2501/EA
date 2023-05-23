@@ -18,7 +18,7 @@ public class ProductResponse {
     private long productNumber;
     private String name;
     private String description;
-    private Double price;
+    private double price;
     private String barcodeNumber;
     private int quantityInStock;
     private List<Review> reviews;

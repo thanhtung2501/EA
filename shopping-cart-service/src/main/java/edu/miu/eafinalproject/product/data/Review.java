@@ -14,6 +14,6 @@ public class Review {
     private String description;
     private int stars;
     private LocalDate date;
-    private CustomerResponse customerResponse;
-    private ProductResponse productResponse;
+    private CustomerResponse customer;
+    private ProductResponse product;
 }

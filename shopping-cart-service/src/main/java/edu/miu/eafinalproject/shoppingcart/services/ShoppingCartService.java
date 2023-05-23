@@ -8,6 +8,7 @@ import edu.miu.eafinalproject.shoppingcart.domain.ShoppingCart;
 
 public interface ShoppingCartService {
     ShoppingCartDTO addProductToCart(ShoppingCartProduct shoppingCartProduct) throws Exception;
+    ShoppingCartDTO removeProductFromCart(ShoppingCartProduct shoppingCartProduct, Long productNumber) throws Exception;
     ShoppingCartDTO findByShoppingCartNumber(Long shoppingCartNumber);
     ShoppingCart createCart(ShoppingCart cart);
 

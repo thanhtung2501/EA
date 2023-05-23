@@ -1,9 +1,7 @@
 package edu.miu.eafinalproject.services;
 
 import edu.miu.eafinalproject.data.ProductDTO;
-import edu.miu.eafinalproject.data.ReviewDTO;
 import edu.miu.eafinalproject.domain.Product;
-import edu.miu.eafinalproject.domain.Review;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

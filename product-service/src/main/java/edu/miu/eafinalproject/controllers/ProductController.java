@@ -1,5 +1,6 @@
 package edu.miu.eafinalproject.controllers;
 
+import edu.miu.eafinalproject.data.ProductDTO;
 import edu.miu.eafinalproject.domain.Product;
 import edu.miu.eafinalproject.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +51,7 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
-        Product product = new Product();
+        ProductDTO product = new ProductDTO();
         product.setProductNumber(productNumber);
         product.setName(name);
         product.setDescription(description);
@@ -64,5 +65,43 @@ public class ProductController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
+
+    }
+
+    @PutMapping
+    public ResponseEntity<?> updateProduct(@RequestParam("image") MultipartFile imageFile,
+                                           @RequestParam("productNumber") Long productNumber,
+                                           @RequestParam("name") String name,
+                                           @RequestParam("description") String description,
+                                           @RequestParam("price") double price,
+                                           @RequestParam("barcodeNumber") String barcodeNumber,
+                                           @RequestParam("quantityInStock") int quantityInStock) {
+        byte[] imageBytes;
+        try {
+            imageBytes = imageFile.getBytes();
+        } catch (IOException e) {
+            // Handle the exception appropriately
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
+        ProductDTO product = new ProductDTO();
+        product.setProductNumber(productNumber);
+        product.setName(name);
+        product.setDescription(description);
+        product.setPrice(price);
+        product.setBarcodeNumber(barcodeNumber);
+        product.setQuantityInStock(quantityInStock);
+        product.setImage(imageBytes);
+
+        try {
+            return ResponseEntity.ok(productService.updateProduct(product));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteProduct(@PathVariable Long id){
+        productService.deleteProduct(id);
+        return ResponseEntity.ok("Product deleted.");
     }
 }

@@ -1,6 +1,6 @@
 package edu.miu.eafinalproject.shoppingcart.data;
 
-import edu.miu.eafinalproject.product.data.AddressDTO;
+import edu.miu.eafinalproject.product.data.AddressResponse;
 import edu.miu.eafinalproject.product.data.CustomerDTO;
 import edu.miu.eafinalproject.shoppingcart.domain.OrderState;
 import lombok.Data;
@@ -13,7 +13,7 @@ import java.util.List;
 public class OrderDTO {
     private OrderState orderState;
     private CustomerDTO customer;
-    private AddressDTO shippingAddress;
+    private AddressResponse shippingAddress;
     private LocalDate orderDate;
     private double totalPrice;
     private List<OrderItemDTO> orderItems = new ArrayList<>();

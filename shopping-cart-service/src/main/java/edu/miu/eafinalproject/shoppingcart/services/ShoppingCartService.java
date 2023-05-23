@@ -1,6 +1,5 @@
 package edu.miu.eafinalproject.shoppingcart.services;
 
-import edu.miu.eafinalproject.product.domain.Product;
 import edu.miu.eafinalproject.shoppingcart.data.OrderDTO;
 import edu.miu.eafinalproject.shoppingcart.data.ShoppingCartDTO;
 import edu.miu.eafinalproject.shoppingcart.data.ShoppingCartProduct;

@@ -3,6 +3,7 @@ package edu.miu.eafinalproject.shoppingcart.controllers;
 import edu.miu.eafinalproject.shoppingcart.data.OrderDTO;
 import edu.miu.eafinalproject.shoppingcart.data.ShoppingCartProduct;
 import edu.miu.eafinalproject.shoppingcart.data.request.CartRequest;
+import edu.miu.eafinalproject.shoppingcart.domain.OrderState;
 import edu.miu.eafinalproject.shoppingcart.domain.ShoppingCart;
 import edu.miu.eafinalproject.shoppingcart.services.ShoppingCartService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,16 @@ public class ShoppingCartController {
         }
     }
 
+    @DeleteMapping("/product/{productNumber}")
+    public ResponseEntity<?> deleteProductFromCart(@RequestBody ShoppingCartProduct shoppingCartProduct,
+                                                   @PathVariable("productNumber") Long productNumber) {
+        try {
+            return ResponseEntity.ok(cartService.removeProductFromCart(shoppingCartProduct, productNumber));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
     @PostMapping("/process")
     public ResponseEntity<?> processCart(@RequestBody CartRequest cartRequest) {
         try {
@@ -55,5 +66,4 @@ public class ShoppingCartController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
-
 }

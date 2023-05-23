@@ -1,4 +1,4 @@
-package edu.miu.eafinalproject.product.domain;
+package edu.miu.eafinalproject.product.data;
 
 public enum AddressType {
     BILLING,

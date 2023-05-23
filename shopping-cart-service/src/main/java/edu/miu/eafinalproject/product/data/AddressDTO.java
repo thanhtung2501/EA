@@ -1,6 +1,5 @@
 package edu.miu.eafinalproject.product.data;
 
-import edu.miu.eafinalproject.product.domain.AddressType;
 import lombok.Data;
 
 @Data

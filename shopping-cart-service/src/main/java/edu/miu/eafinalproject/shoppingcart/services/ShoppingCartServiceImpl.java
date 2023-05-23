@@ -1,14 +1,13 @@
 package edu.miu.eafinalproject.shoppingcart.services;
 
+import edu.miu.eafinalproject.external.CustomerServiceFeignClient;
+import edu.miu.eafinalproject.external.ProductServiceFeignClient;
 import edu.miu.eafinalproject.product.data.AddressDTO;
 import edu.miu.eafinalproject.product.data.CustomerDTO;
-import edu.miu.eafinalproject.product.domain.Address;
-import edu.miu.eafinalproject.product.domain.AddressType;
-import edu.miu.eafinalproject.product.domain.Customer;
-import edu.miu.eafinalproject.product.domain.Product;
-import edu.miu.eafinalproject.product.repositories.AddressRepository;
-import edu.miu.eafinalproject.product.repositories.CustomerRepository;
-import edu.miu.eafinalproject.product.repositories.ProductRepository;
+import edu.miu.eafinalproject.product.data.Address;
+import edu.miu.eafinalproject.product.data.AddressType;
+import edu.miu.eafinalproject.product.data.Customer;
+import edu.miu.eafinalproject.product.data.Product;
 import edu.miu.eafinalproject.shoppingcart.data.*;
 import edu.miu.eafinalproject.shoppingcart.data.request.CartRequest;
 import edu.miu.eafinalproject.shoppingcart.domain.*;
@@ -30,16 +29,22 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     private ShoppingCartRepository shoppingCartRepository;
 
     @Autowired
-    private ProductRepository productRepository;
+    private ProductServiceFeignClient productServiceFeignClient;
+
+    @Autowired
+    private CustomerServiceFeignClient customerServiceFeignClient;
+
+//    @Autowired
+//    private ProductRepository productRepository;
 
     @Autowired
     private OrdersRepository ordersRepository;
 
-    @Autowired
-    private CustomerRepository customerRepository;
+//    @Autowired
+//    private CustomerRepository customerRepository;
 
-    @Autowired
-    private AddressRepository addressRepository;
+//    @Autowired
+//    private AddressRepository addressRepository;
 
     @Override
     @Transactional
@@ -68,8 +73,10 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         }
 
         // else if product is not available in cart
-        Optional<Product> optionalProduct = productRepository.findByProductNumber(productNumber);
-        Product productInDB = optionalProduct.orElse(Product.builder().productNumber(productNumber).build());
+//        Optional<Product> optionalProduct = productRepository.findByProductNumber(productNumber);
+//        Product productInDB = optionalProduct.orElse(Product.builder().productNumber(productNumber).build());
+//        productServiceFeignClient.findByProductNumber(productNumber);
+        Product productInDB = productServiceFeignClient.findByProductNumber(productNumber);
 
         CartItem newCartItem = new CartItem();
         newCartItem.setProduct(productInDB);
@@ -172,17 +179,19 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         Long customerId = cartRequest.getCustomerId();
         List<CartRequest.CartItemRequest> cartItems = cartRequest.getCartItems();
 
-        Optional<Address> optionalAddress = addressRepository.findById(cartRequest.getShippingAddressId());
-        Address shippingAddress = optionalAddress.orElse(new Address());
+//        Optional<Address> optionalAddress = addressRepository.findById(cartRequest.getShippingAddressId());
+//        Address shippingAddress = optionalAddress.orElse(new Address());
+        Address shippingAddress = new Address();
         shippingAddress.setAddressType(AddressType.SHIPPING);
 
-        Optional<Customer> optionalCustomer = customerRepository.findById(customerId);
+//        Optional<Customer> optionalCustomer = customerRepository.findById(customerId);
+        Customer customer = customerServiceFeignClient.findByCustomerId(customerId);
         // check if customer is existed. if not, throw exception
-        if (optionalCustomer.isEmpty()) {
+        if (customer.getId() == null) {
             throw new Exception("Customer does not exist. Please register");
         }
 
-        Customer customer = optionalCustomer.get();
+//        Customer customer = optionalCustomer.get();
 
         Orders order = new Orders();
         order.setCustomer(customer);
@@ -196,8 +205,9 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
         for (CartRequest.CartItemRequest cartItem : cartItems) {
             long productNumber = cartItem.getProductNumber();
-            Product product = productRepository.findByProductNumber(productNumber)
-                    .orElseThrow(() -> new IllegalArgumentException("Invalid product number: " + productNumber));
+//            Product product = productRepository.findByProductNumber(productNumber)
+//                    .orElseThrow(() -> new IllegalArgumentException("Invalid product number: " + productNumber));
+            Product product = productServiceFeignClient.findByProductNumber(productNumber);
 
             OrderItem orderItem = new OrderItem();
             orderItem.setProduct(product);

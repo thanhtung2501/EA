@@ -1,6 +1,6 @@
 package edu.miu.eafinalproject.shoppingcart.domain;
 
-import edu.miu.eafinalproject.product.domain.Product;
+import edu.miu.eafinalproject.product.data.Product;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

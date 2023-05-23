@@ -1,7 +1,5 @@
 package edu.miu.eafinalproject.product.data;
 
-import edu.miu.eafinalproject.product.domain.Customer;
-import edu.miu.eafinalproject.product.domain.Product;
 import lombok.Data;
 
 import java.time.LocalDate;

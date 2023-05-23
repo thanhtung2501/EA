@@ -1,12 +1,13 @@
 package edu.miu.eafinalproject.shoppingcart.domain;
 
-import edu.miu.eafinalproject.product.domain.Address;
-import edu.miu.eafinalproject.product.domain.Customer;
+import edu.miu.eafinalproject.product.data.Address;
+import edu.miu.eafinalproject.product.data.Customer;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+//import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,12 +27,14 @@ public class Orders {
     private LocalDate orderDate;
     private double totalPrice;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customer_id")
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "customer_id")
+    @Transient
     private Customer customer;
 
-    @ManyToOne(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
-    @JoinColumn(name = "shipping_address_id")
+//    @ManyToOne(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
+//    @JoinColumn(name = "shipping_address_id")
+    @Transient
     private Address shippingAddress;
 
     @Transient

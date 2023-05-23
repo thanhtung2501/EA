@@ -4,6 +4,7 @@ import edu.miu.eafinalproject.domain.Customer;
 
 public interface CustomerService {
     Customer createOrCustomer(Customer customer);
+    Customer getCustomerByCustomerId(Long customerId);
     void deleteCustomer(Long customerId);
 
 }

@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>edu.miu</groupId>
-    <artifactId>customerResponse-service</artifactId>
+    <artifactId>customer-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>customerResponse-service</name>
-    <description>customerResponse-service</description>
+    <name>customer-service</name>
+    <description>customer-service</description>
     <properties>
         <java.version>17</java.version>
         <spring-cloud.version>2021.0.7</spring-cloud.version>

@@ -152,9 +152,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
         OrderState orderState = cartRequest.getOrderState();
         if (orderState == null) {
-            order.setOrderState(OrderState.NEW);
-        } else {
-            order.setOrderState(orderState);
+            orderState = OrderState.NEW;
         }
 
         for (CartRequest.CartItemRequest cartItem : cartItems) {

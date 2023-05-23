@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 public class CustomerAdapter {
     
     public CustomerDTO convertCustomerToCustomerDTO(Customer customer){
+        if (customer == null) return CustomerDTO.builder().build();
+
         return CustomerDTO.builder()
                 .id(customer.getId())
                 .firstName(customer.getFirstName())

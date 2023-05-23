@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class AddressDTO {
-    private Long id;
+    private long id;
 
     private AddressType addressType;
 

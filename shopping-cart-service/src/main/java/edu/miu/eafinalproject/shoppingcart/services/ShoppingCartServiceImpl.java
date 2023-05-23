@@ -58,8 +58,8 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         Long productNumber = shoppingCartProduct.getProductNumber();
         int quantity = shoppingCartProduct.getQuantity();
 
-        for (CartItem item: cartItems) {
-            if(Objects.equals(item.getProduct().getProductNumber(), productNumber)){
+        for (CartItem item : cartItems) {
+            if (Objects.equals(item.getProduct().getProductNumber(), productNumber)) {
                 item.setQuantity(item.getQuantity() + quantity);
                 shoppingCartRepository.save(cart);
 
@@ -83,6 +83,34 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         return getShoppingCartDTO(cart);
     }
 
+    @Override
+    public ShoppingCartDTO removeProductFromCart(ShoppingCartProduct shoppingCartProduct, Long productNumber) throws Exception {
+        Optional<ShoppingCart> optionalShoppingCart = shoppingCartRepository.findByShoppingCartNumber(shoppingCartProduct.getShoppingCartNumber());
+
+        // Check if the shopping cart has been created. If not, throw an exception.
+        if (optionalShoppingCart.isEmpty()) {
+            throw new Exception(String.format("The shopping cart number %s does not exist.", shoppingCartProduct.getShoppingCartNumber()));
+        }
+
+        ShoppingCart cart = optionalShoppingCart.get();
+        List<CartItem> cartItems = cart.getCartItems();
+
+        // Find the cart item with the specified product number
+        Optional<CartItem> optionalCartItem = cartItems.stream()
+                .filter(item -> Objects.equals(item.getProduct().getProductNumber(), productNumber))
+                .findFirst();
+
+        // If the cart item is found, remove it from the cart
+        if (optionalCartItem.isPresent()) {
+            CartItem cartItem = optionalCartItem.get();
+            cartItems.remove(cartItem);
+            shoppingCartRepository.save(cart);
+            return getShoppingCartDTO(cart);
+        } else {
+            throw new Exception(String.format("The product with number %d is not found in the cart.", productNumber));
+        }
+    }
+
     private ShoppingCartDTO getShoppingCartDTO(ShoppingCart cart) {
         List<OrderItemDTO> orderItemDTOs = getOrderItemDTOsFromCartItems(cart.getCartItems());
 
@@ -95,6 +123,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
+    @Transactional
     public ShoppingCartDTO findByShoppingCartNumber(Long shoppingCartNumber) {
         Optional<ShoppingCart> optionalShoppingCart = shoppingCartRepository.findByShoppingCartNumber(shoppingCartNumber);
         ShoppingCart shoppingCart = optionalShoppingCart.orElse(new ShoppingCart());
@@ -202,7 +231,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             int quantity = itemDTO.getQuantity();
             double discountValue = itemDTO.getDiscountValue();
 
-            total += (price * quantity) - (price * quantity * discountValue/100);
+            total += (price * quantity) - (price * quantity * discountValue / 100);
         }
 
         return total;

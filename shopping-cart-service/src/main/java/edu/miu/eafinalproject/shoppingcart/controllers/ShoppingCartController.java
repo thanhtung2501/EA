@@ -18,7 +18,7 @@ public class ShoppingCartController {
     private ShoppingCartService cartService;
 
     @GetMapping("/{shoppingCartNumber}")
-    public ResponseEntity<?> getShoppingCart(@PathVariable Long shoppingCartNumber){
+    public ResponseEntity<?> getShoppingCart(@PathVariable Long shoppingCartNumber) {
         try {
             return ResponseEntity.ok(cartService.findByShoppingCartNumber(shoppingCartNumber));
         } catch (Exception e) {
@@ -27,7 +27,7 @@ public class ShoppingCartController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createCart(@RequestBody ShoppingCart cart){
+    public ResponseEntity<?> createCart(@RequestBody ShoppingCart cart) {
         try {
             return ResponseEntity.ok(cartService.createCart(cart));
         } catch (Exception e) {
@@ -46,6 +46,16 @@ public class ShoppingCartController {
         }
     }
 
+    @DeleteMapping("/product/{productNumber}")
+    public ResponseEntity<?> deleteProductFromCart(@RequestBody ShoppingCartProduct shoppingCartProduct,
+                                                   @PathVariable Long productNumber) {
+        try {
+            return ResponseEntity.ok(cartService.removeProductFromCart(shoppingCartProduct, productNumber));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
     @PostMapping("/checkout/{orderState}")
     public ResponseEntity<?> checkoutCart(@RequestBody CartRequest cartRequest, @PathVariable OrderState orderState) {
         try {
@@ -56,5 +66,4 @@ public class ShoppingCartController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
-
 }

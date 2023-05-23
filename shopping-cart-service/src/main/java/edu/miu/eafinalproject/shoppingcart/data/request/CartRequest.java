@@ -1,6 +1,5 @@
 package edu.miu.eafinalproject.shoppingcart.data.request;
 
-import edu.miu.eafinalproject.product.data.AddressDTO;
 import edu.miu.eafinalproject.shoppingcart.domain.OrderState;
 import lombok.Data;
 

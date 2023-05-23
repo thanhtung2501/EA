@@ -1,7 +1,7 @@
 package edu.miu.eafinalproject.services;
 
+import edu.miu.eafinalproject.converter.CustomerAdapter;
 import edu.miu.eafinalproject.data.CustomerDTO;
-import edu.miu.eafinalproject.domain.Address;
 import edu.miu.eafinalproject.domain.Customer;
 import edu.miu.eafinalproject.repositories.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;

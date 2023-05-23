@@ -1,6 +1,5 @@
-package edu.miu.eafinalproject.services;
+package edu.miu.eafinalproject.converter;
 
-import edu.miu.eafinalproject.data.AddressDTO;
 import edu.miu.eafinalproject.data.CustomerDTO;
 import edu.miu.eafinalproject.domain.Address;
 import edu.miu.eafinalproject.domain.Customer;
@@ -31,8 +30,8 @@ public class CustomerAdapter {
                 .build();
     }
     
-    public AddressDTO convertAddressToAddressDTO(Address address){
-        return AddressDTO.builder()
+    public edu.miu.eafinalproject.data.AddressDTO convertAddressToAddressDTO(Address address){
+        return edu.miu.eafinalproject.data.AddressDTO.builder()
                 .addressType(address.getAddressType())
                 .street(address.getStreet())
                 .city(address.getCity())
@@ -42,7 +41,7 @@ public class CustomerAdapter {
                 .build();
     }
 
-    public Address convertAddressDTOToAddress(AddressDTO addressDTO){
+    public Address convertAddressDTOToAddress(edu.miu.eafinalproject.data.AddressDTO addressDTO){
         return Address.builder()
                 .addressType(addressDTO.getAddressType())
                 .street(addressDTO.getStreet())

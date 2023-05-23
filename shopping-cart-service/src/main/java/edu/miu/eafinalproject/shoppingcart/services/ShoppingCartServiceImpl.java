@@ -211,9 +211,37 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         orderDTO.setShippingAddress(shippingAddress);
 
         order.setTotalPrice(totalPrice);
+//        ordersRepository.save(order);
+
+        // save shopping cart
+        Optional<ShoppingCart> optionalShoppingCart = shoppingCartRepository.findByShoppingCartNumber(cartRequest.getShoppingCartNumber());
+        ShoppingCart shoppingCart = optionalShoppingCart.orElse(new ShoppingCart());
+        shoppingCart.setCartItems(getCartItems(cartRequest));
+        shoppingCart.setTotalPrice(totalPrice);
+        shoppingCart.setCustomerId(customerId);
+
+        shoppingCartRepository.save(shoppingCart);
         ordersRepository.save(order);
 
         return orderDTO;
+    }
+
+    private List<CartItem> getCartItems(CartRequest cartRequest) {
+        List<CartItem> result = new ArrayList<>();
+
+        List<CartRequest.CartItemRequest> cartItems = cartRequest.getCartItems();
+
+        for (CartRequest.CartItemRequest cartItemRequest : cartItems) {
+            CartItem cartItem = new CartItem();
+
+            cartItem.setQuantity(cartItemRequest.getQuantity());
+            cartItem.setDiscountValue(cartItemRequest.getDiscountValue());
+            cartItem.setProductNumber(cartItemRequest.getProductNumber());
+
+            result.add(cartItem);
+        }
+
+        return result;
     }
 
     private double getTotalPrice(List<OrderItemDTO> orderItemDTOs) {

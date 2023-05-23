@@ -27,15 +27,13 @@ public class Orders {
     private LocalDate orderDate;
     private double totalPrice;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "customer_id")
     @Transient
-    private CustomerResponse customerResponse;
+    private CustomerResponse customer;
 
 //    @ManyToOne(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
 //    @JoinColumn(name = "shipping_address_id")
     @Transient
-    private AddressResponse shippingAddressResponse;
+    private AddressResponse shippingAddress;
 
     @Transient
     private List<OrderItem> orderItems = new ArrayList<>();

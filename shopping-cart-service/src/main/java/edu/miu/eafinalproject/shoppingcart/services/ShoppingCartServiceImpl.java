@@ -134,11 +134,11 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Transactional
     public OrderDTO processCart(CartRequest cartRequest) throws Exception {
         long customerId = cartRequest.getCustomerId();
+        long addressId = cartRequest.getShippingAddressId();
         List<CartRequest.CartItemRequest> cartItems = cartRequest.getCartItems();
 
-//        Address shippingAddress = optionalAddress.orElse(new Address());
-        AddressResponse shippingAddressResponse = new AddressResponse();
-        shippingAddressResponse.setAddressType(AddressType.SHIPPING);
+        AddressResponse shippingAddress = customerServiceFeignClient.findByAddressId(addressId);
+        shippingAddress.setAddressType(AddressType.SHIPPING);
 
         CustomerResponse customerResponse = customerServiceFeignClient.findByCustomerId(customerId);
         // check if customer is existed. if not, throw exception
@@ -146,14 +146,16 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             throw new Exception("Customer does not exist. Please register");
         }
 
-        Orders order = new Orders();
-        order.setCustomerResponse(customerResponse);
-        order.setShippingAddressResponse(shippingAddressResponse);
-
         OrderState orderState = cartRequest.getOrderState();
         if (orderState == null) {
             orderState = OrderState.NEW;
         }
+
+        Orders order = new Orders();
+        order.setCustomer(customerResponse);
+        order.setShippingAddress(shippingAddress);
+        order.setOrderDate(LocalDate.now());
+        order.setOrderState(orderState);
 
         for (CartRequest.CartItemRequest cartItem : cartItems) {
             long productNumber = cartItem.getProductNumber();
@@ -168,17 +170,20 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             order.getOrderItems().add(orderItem);
         }
 
-        ordersRepository.save(order);
-
         OrderDTO orderDTO = new OrderDTO();
         List<OrderItemDTO> orderItemDTOs = getOrderItemDTOs(order.getOrderItems());
 
+        double totalPrice = getTotalPrice(orderItemDTOs);
+
         orderDTO.setOrderDate(LocalDate.now());
-        orderDTO.setTotalPrice(getTotalPrice(orderItemDTOs));
+        orderDTO.setTotalPrice(totalPrice);
         orderDTO.setCustomer(getCustomerDTO(customerResponse));
         orderDTO.setOrderState(orderState);
         orderDTO.setOrderItems(orderItemDTOs);
-        orderDTO.setShippingAddress(shippingAddressResponse);
+        orderDTO.setShippingAddress(shippingAddress);
+
+        order.setTotalPrice(totalPrice);
+        ordersRepository.save(order);
 
         return orderDTO;
     }
@@ -224,7 +229,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         customerDTO.setEmailAddress(customerResponse.getEmailAddress());
         customerDTO.setFirstName(customerResponse.getFirstName());
         customerDTO.setLastName(customerResponse.getLastName());
-        customerDTO.setBillingAddressResponse(customerResponse.getBillingAddressResponse());
+        customerDTO.setBillingAddress(customerResponse.getBillingAddress());
 
         return customerDTO;
     }

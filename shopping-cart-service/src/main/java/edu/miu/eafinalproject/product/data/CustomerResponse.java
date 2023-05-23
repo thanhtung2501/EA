@@ -17,7 +17,7 @@ public class CustomerResponse {
     private String lastName;
     private String emailAddress;
     private List<Review> reviews;
-    private AddressResponse billingAddressResponse;
-    private List<AddressResponse> shippingAddressResponses;
+    private AddressResponse billingAddress;
+    private List<AddressResponse> shippingAddresses;
     private List<CreditCard> creditCards;
 }

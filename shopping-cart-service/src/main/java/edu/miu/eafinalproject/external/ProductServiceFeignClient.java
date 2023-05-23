@@ -1,6 +1,6 @@
 package edu.miu.eafinalproject.external;
 
-import edu.miu.eafinalproject.product.data.Product;
+import edu.miu.eafinalproject.product.data.ProductResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,5 +10,5 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface ProductServiceFeignClient {
 	
 	@GetMapping(value = "/products/{productNumber}", consumes = "application/json", produces = "application/json")
-	Product findByProductNumber(@PathVariable("productNumber") Long productNumber);
+    ProductResponse findByProductNumber(@PathVariable("productNumber") Long productNumber);
 }

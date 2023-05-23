@@ -34,17 +34,8 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Autowired
     private CustomerServiceFeignClient customerServiceFeignClient;
 
-//    @Autowired
-//    private ProductRepository productRepository;
-
     @Autowired
     private OrdersRepository ordersRepository;
-
-//    @Autowired
-//    private CustomerRepository customerRepository;
-
-//    @Autowired
-//    private AddressRepository addressRepository;
 
     @Override
     @Transactional
@@ -63,8 +54,8 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         Long productNumber = shoppingCartProduct.getProductNumber();
         int quantity = shoppingCartProduct.getQuantity();
 
-        for (CartItem item : cartItems) {
-            if (Objects.equals(item.getProduct().getProductNumber(), productNumber)) {
+        for (CartItem item: cartItems) {
+            if(Objects.equals(item.getProductNumber(), productNumber)){
                 item.setQuantity(item.getQuantity() + quantity);
                 shoppingCartRepository.save(cart);
 
@@ -73,13 +64,10 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         }
 
         // else if product is not available in cart
-//        Optional<Product> optionalProduct = productRepository.findByProductNumber(productNumber);
-//        Product productInDB = optionalProduct.orElse(Product.builder().productNumber(productNumber).build());
-//        productServiceFeignClient.findByProductNumber(productNumber);
-        Product productInDB = productServiceFeignClient.findByProductNumber(productNumber);
+        ProductResponse productResponse = productServiceFeignClient.findByProductNumber(productNumber);
 
         CartItem newCartItem = new CartItem();
-        newCartItem.setProduct(productInDB);
+        newCartItem.setProductNumber(productResponse.getProductNumber());
         newCartItem.setQuantity(quantity);
         newCartItem.setCart(cart);
 
@@ -90,39 +78,13 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         return getShoppingCartDTO(cart);
     }
 
-    @Override
-    public ShoppingCartDTO removeProductFromCart(ShoppingCartProduct shoppingCartProduct, Long productNumber) throws Exception {
-        Optional<ShoppingCart> optionalShoppingCart = shoppingCartRepository.findByShoppingCartNumber(shoppingCartProduct.getShoppingCartNumber());
-
-        // Check if the shopping cart has been created. If not, throw an exception.
-        if (optionalShoppingCart.isEmpty()) {
-            throw new Exception(String.format("The shopping cart number %s does not exist.", shoppingCartProduct.getShoppingCartNumber()));
-        }
-
-        ShoppingCart cart = optionalShoppingCart.get();
-        List<CartItem> cartItems = cart.getCartItems();
-
-        // Find the cart item with the specified product number
-        Optional<CartItem> optionalCartItem = cartItems.stream()
-                .filter(item -> Objects.equals(item.getProduct().getProductNumber(), productNumber))
-                .findFirst();
-
-        // If the cart item is found, remove it from the cart
-        if (optionalCartItem.isPresent()) {
-            CartItem cartItem = optionalCartItem.get();
-            cartItems.remove(cartItem);
-            shoppingCartRepository.save(cart);
-            return getShoppingCartDTO(cart);
-        } else {
-            throw new Exception(String.format("The product with number %d is not found in the cart.", productNumber));
-        }
-    }
-
     private ShoppingCartDTO getShoppingCartDTO(ShoppingCart cart) {
+        CustomerResponse customerResponse = customerServiceFeignClient.findByCustomerId(cart.getCustomerId());
+
         List<OrderItemDTO> orderItemDTOs = getOrderItemDTOsFromCartItems(cart.getCartItems());
 
         return ShoppingCartDTO.builder()
-                .customer(getCustomerDTO(cart.getCustomer()))
+                .customer(getCustomerDTO(customerResponse))
                 .totalPrice(getTotalPrice(orderItemDTOs))
                 .orderItems(orderItemDTOs)
                 .shoppingCartNumber(cart.getShoppingCartNumber())
@@ -130,7 +92,6 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
-    @Transactional
     public ShoppingCartDTO findByShoppingCartNumber(Long shoppingCartNumber) {
         Optional<ShoppingCart> optionalShoppingCart = shoppingCartRepository.findByShoppingCartNumber(shoppingCartNumber);
         ShoppingCart shoppingCart = optionalShoppingCart.orElse(new ShoppingCart());
@@ -146,7 +107,8 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     private List<OrderItemDTO> getOrderItemDTOsFromCartItems(List<CartItem> cartItems) {
         List<OrderItemDTO> result = new ArrayList<>();
         for (CartItem cartItem : cartItems) {
-            ProductDTO productDTO = getProductDTO(cartItem.getProduct());
+            ProductResponse productResponse = productServiceFeignClient.findByProductNumber(cartItem.getProductNumber());
+            ProductDTO productDTO = getProductDTO(productResponse);
 
             OrderItemDTO dto = OrderItemDTO.builder()
                     .product(productDTO)
@@ -160,11 +122,11 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         return result;
     }
 
-    private ProductDTO getProductDTO(Product product) {
+    private ProductDTO getProductDTO(ProductResponse productResponse) {
         return ProductDTO.builder()
-                .price(product.getPrice())
-                .productName(product.getName())
-                .productNumber(product.getProductNumber())
+                .price(productResponse.getPrice())
+                .productName(productResponse.getName())
+                .productNumber(productResponse.getProductNumber())
                 .build();
     }
 
@@ -175,28 +137,28 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Override
     @Transactional
-    public OrderDTO checkoutCart(CartRequest cartRequest, OrderState orderState) throws Exception {
-        Long customerId = cartRequest.getCustomerId();
+    public OrderDTO processCart(CartRequest cartRequest) throws Exception {
+        long customerId = cartRequest.getCustomerId();
         List<CartRequest.CartItemRequest> cartItems = cartRequest.getCartItems();
 
 //        Optional<Address> optionalAddress = addressRepository.findById(cartRequest.getShippingAddressId());
 //        Address shippingAddress = optionalAddress.orElse(new Address());
-        Address shippingAddress = new Address();
-        shippingAddress.setAddressType(AddressType.SHIPPING);
+        AddressResponse shippingAddressResponse = new AddressResponse();
+        shippingAddressResponse.setAddressType(AddressType.SHIPPING);
 
-//        Optional<Customer> optionalCustomer = customerRepository.findById(customerId);
-        Customer customer = customerServiceFeignClient.findByCustomerId(customerId);
+        CustomerResponse customerResponse = customerServiceFeignClient.findByCustomerId(customerId);
         // check if customer is existed. if not, throw exception
-        if (customer.getId() == null) {
+        if (customerResponse.getId() == 0) {
             throw new Exception("Customer does not exist. Please register");
         }
 
 //        Customer customer = optionalCustomer.get();
 
         Orders order = new Orders();
-        order.setCustomer(customer);
-        order.setShippingAddress(shippingAddress);
+        order.setCustomerResponse(customerResponse);
+        order.setShippingAddressResponse(shippingAddressResponse);
 
+        OrderState orderState = cartRequest.getOrderState();
         if (orderState == null) {
             order.setOrderState(OrderState.NEW);
         } else {
@@ -205,12 +167,10 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
         for (CartRequest.CartItemRequest cartItem : cartItems) {
             long productNumber = cartItem.getProductNumber();
-//            Product product = productRepository.findByProductNumber(productNumber)
-//                    .orElseThrow(() -> new IllegalArgumentException("Invalid product number: " + productNumber));
-            Product product = productServiceFeignClient.findByProductNumber(productNumber);
+            ProductResponse productResponse = productServiceFeignClient.findByProductNumber(productNumber);
 
             OrderItem orderItem = new OrderItem();
-            orderItem.setProduct(product);
+            orderItem.setProductNumber(productResponse.getProductNumber());
             orderItem.setQuantity(cartItem.getQuantity());
             orderItem.setDiscountValue(cartItem.getDiscountValue());
             orderItem.setOrders(order);
@@ -225,10 +185,10 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
         orderDTO.setOrderDate(LocalDate.now());
         orderDTO.setTotalPrice(getTotalPrice(orderItemDTOs));
-        orderDTO.setCustomer(getCustomerDTO(customer));
-        orderDTO.setOrderState(OrderState.NEW);
+        orderDTO.setCustomer(getCustomerDTO(customerResponse));
+        orderDTO.setOrderState(orderState);
         orderDTO.setOrderItems(orderItemDTOs);
-        orderDTO.setShippingAddress(getAddressDTO(shippingAddress));
+        orderDTO.setShippingAddress(shippingAddressResponse);
 
         return orderDTO;
     }
@@ -241,32 +201,20 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             int quantity = itemDTO.getQuantity();
             double discountValue = itemDTO.getDiscountValue();
 
-            total += (price * quantity) - (price * quantity * discountValue / 100);
+            total += (price * quantity) - (price * quantity * discountValue/100);
         }
 
         return total;
     }
 
-    private AddressDTO getAddressDTO(Address shippingAddress) {
-        AddressDTO dto = new AddressDTO();
-        dto.setId(shippingAddress.getId());
-        dto.setPostalCode(shippingAddress.getPostalCode());
-        dto.setCity(shippingAddress.getCity());
-        dto.setState(shippingAddress.getState());
-        dto.setCountry(shippingAddress.getCountry());
-        dto.setStreet(shippingAddress.getStreet());
-        dto.setAddressType(shippingAddress.getAddressType());
-        dto.setCountry(shippingAddress.getCountry());
-
-        return dto;
-    }
-
     private List<OrderItemDTO> getOrderItemDTOs(List<OrderItem> orderItems) {
         List<OrderItemDTO> result = new ArrayList<>();
         for (OrderItem orderItem : orderItems) {
+            ProductResponse productResponse = productServiceFeignClient.findByProductNumber(orderItem.getProductNumber());
+
             OrderItemDTO orderItemDTO = OrderItemDTO.builder()
                     .discountValue(orderItem.getDiscountValue())
-                    .product(getProductDTO(orderItem.getProduct()))
+                    .product(getProductDTO(productResponse))
                     .quantity(orderItem.getQuantity())
                     .build();
 
@@ -276,31 +224,19 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         return result;
     }
 
-    private CustomerDTO getCustomerDTO(Customer customer) {
-        if (customer == null) {
+    private CustomerDTO getCustomerDTO(CustomerResponse customerResponse) {
+        if (customerResponse == null) {
             return null;
         }
 
         CustomerDTO customerDTO = new CustomerDTO();
-        customerDTO.setId(customer.getId());
-        customerDTO.setEmailAddress(customer.getEmailAddress());
-        customerDTO.setFirstName(customer.getFirstName());
-        customerDTO.setLastName(customer.getLastName());
-        customerDTO.setBillingAddress(getBillingAddressDTO(customer.getBillingAddress()));
+        customerDTO.setId(customerResponse.getId());
+        customerDTO.setEmailAddress(customerResponse.getEmailAddress());
+        customerDTO.setFirstName(customerResponse.getFirstName());
+        customerDTO.setLastName(customerResponse.getLastName());
+        customerDTO.setBillingAddressResponse(customerResponse.getBillingAddressResponse());
 
         return customerDTO;
     }
 
-    private AddressDTO getBillingAddressDTO(Address billingAddress) {
-        AddressDTO addressDTO = new AddressDTO();
-        addressDTO.setAddressType(billingAddress.getAddressType());
-        addressDTO.setId(billingAddress.getId());
-        addressDTO.setCity(billingAddress.getCity());
-        addressDTO.setState(billingAddress.getState());
-        addressDTO.setCountry(billingAddress.getCountry());
-        addressDTO.setStreet(billingAddress.getStreet());
-        addressDTO.setPostalCode(billingAddress.getPostalCode());
-
-        return addressDTO;
-    }
 }

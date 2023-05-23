@@ -1,7 +1,7 @@
 package edu.miu.eafinalproject.shoppingcart.domain;
 
-import edu.miu.eafinalproject.product.data.Address;
-import edu.miu.eafinalproject.product.data.Customer;
+import edu.miu.eafinalproject.product.data.AddressResponse;
+import edu.miu.eafinalproject.product.data.CustomerResponse;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,12 +30,12 @@ public class Orders {
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "customer_id")
     @Transient
-    private Customer customer;
+    private CustomerResponse customerResponse;
 
 //    @ManyToOne(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
 //    @JoinColumn(name = "shipping_address_id")
     @Transient
-    private Address shippingAddress;
+    private AddressResponse shippingAddressResponse;
 
     @Transient
     private List<OrderItem> orderItems = new ArrayList<>();

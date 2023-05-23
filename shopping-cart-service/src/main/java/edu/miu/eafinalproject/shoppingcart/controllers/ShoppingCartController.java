@@ -18,7 +18,7 @@ public class ShoppingCartController {
     private ShoppingCartService cartService;
 
     @GetMapping("/{shoppingCartNumber}")
-    public ResponseEntity<?> getShoppingCart(@PathVariable Long shoppingCartNumber) {
+    public ResponseEntity<?> getShoppingCart(@PathVariable("shoppingCartNumber") Long shoppingCartNumber){
         try {
             return ResponseEntity.ok(cartService.findByShoppingCartNumber(shoppingCartNumber));
         } catch (Exception e) {
@@ -27,7 +27,7 @@ public class ShoppingCartController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createCart(@RequestBody ShoppingCart cart) {
+    public ResponseEntity<?> createCart(@RequestBody ShoppingCart cart){
         try {
             return ResponseEntity.ok(cartService.createCart(cart));
         } catch (Exception e) {
@@ -56,10 +56,10 @@ public class ShoppingCartController {
         }
     }
 
-    @PostMapping("/checkout/{orderState}")
-    public ResponseEntity<?> checkoutCart(@RequestBody CartRequest cartRequest, @PathVariable OrderState orderState) {
+    @PostMapping("/process")
+    public ResponseEntity<?> processCart(@RequestBody CartRequest cartRequest) {
         try {
-            OrderDTO order = cartService.checkoutCart(cartRequest, orderState);
+            OrderDTO order = cartService.processCart(cartRequest);
 
             return ResponseEntity.ok(order);
         } catch (Exception e) {

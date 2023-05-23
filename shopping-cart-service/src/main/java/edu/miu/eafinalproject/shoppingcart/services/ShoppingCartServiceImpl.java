@@ -42,15 +42,15 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             throw new Exception(String.format("The shopping cart number %s does not exist.", shoppingCartProduct.getShoppingCartNumber()));
         }
 
-        ShoppingCart cart = optionalShoppingCart.orElse(new ShoppingCart());
+        ShoppingCart cart = optionalShoppingCart.get();
         List<CartItem> cartItems = cart.getCartItems();
 
         //check if product is available already
         Long productNumber = shoppingCartProduct.getProductNumber();
         int quantity = shoppingCartProduct.getQuantity();
 
-        for (CartItem item: cartItems) {
-            if(Objects.equals(item.getProductNumber(), productNumber)){
+        for (CartItem item : cartItems) {
+            if (Objects.equals(item.getProductNumber(), productNumber)) {
                 item.setQuantity(item.getQuantity() + quantity);
                 shoppingCartRepository.save(cart);
 
@@ -60,6 +60,8 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
         // else if product is not available in cart
         ProductResponse productResponse = productServiceFeignClient.findByProductNumber(productNumber);
+
+        if (productResponse.getId() == 0) throw new RuntimeException("No product found with product id "+ productNumber);
 
         CartItem newCartItem = new CartItem();
         newCartItem.setProductNumber(productResponse.getProductNumber());
@@ -74,7 +76,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
-    public ShoppingCartDTO removeProductFromCart(ShoppingCartProduct shoppingCartProduct, Long productNumber) throws Exception {
+    public ShoppingCartDTO removeProductFromCart(ShoppingCartProduct shoppingCartProduct) throws Exception {
         Optional<ShoppingCart> optionalShoppingCart = shoppingCartRepository.findByShoppingCartNumber(shoppingCartProduct.getShoppingCartNumber());
 
         // Check if the shopping cart has been created. If not, throw an exception.
@@ -87,7 +89,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
         // Find the cart item with the specified product number
         Optional<CartItem> optionalCartItem = cartItems.stream()
-                .filter(item -> Objects.equals(item.getProductNumber(), productNumber))
+                .filter(item -> Objects.equals(item.getProductNumber(), shoppingCartProduct.getProductNumber()))
                 .findFirst();
 
         // If the cart item is found, remove it from the cart
@@ -97,7 +99,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             shoppingCartRepository.save(cart);
             return getShoppingCartDTO(cart);
         } else {
-            throw new Exception(String.format("The product with number %d is not found in the cart.", productNumber));
+            throw new Exception(String.format("The product with number %d is not found in the cart.", shoppingCartProduct.getProductNumber()));
         }
     }
 
@@ -117,7 +119,10 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Override
     public ShoppingCartDTO findByShoppingCartNumber(Long shoppingCartNumber) {
         Optional<ShoppingCart> optionalShoppingCart = shoppingCartRepository.findByShoppingCartNumber(shoppingCartNumber);
-        ShoppingCart shoppingCart = optionalShoppingCart.orElse(new ShoppingCart());
+
+        if (optionalShoppingCart.isEmpty()) return null;
+
+        ShoppingCart shoppingCart = optionalShoppingCart.get();
 
         List<OrderItemDTO> cartItemDTOS = getOrderItemDTOsFromCartItems(shoppingCart.getCartItems());
 
@@ -154,8 +159,13 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
-    public ShoppingCart createCart(ShoppingCart cart) {
-        return shoppingCartRepository.save(cart);
+    public ShoppingCart createCart(ShoppingCart cart) throws Exception {
+        try{
+            return shoppingCartRepository.save(cart);
+        }catch (Exception ex){
+            String errorMessage = String.format("The shopping cart number %s already exist.", cart.getShoppingCartNumber());
+            throw new Exception(errorMessage);
+        }
     }
 
     @Override
@@ -252,7 +262,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             int quantity = itemDTO.getQuantity();
             double discountValue = itemDTO.getDiscountValue();
 
-            total += (price * quantity) - (price * quantity * discountValue/100);
+            total += (price * quantity) - (price * quantity * discountValue / 100);
         }
 
         return total;
@@ -289,5 +299,4 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
         return customerDTO;
     }
-
 }

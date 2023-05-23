@@ -6,6 +6,7 @@ import edu.miu.eafinalproject.product.data.*;
 import edu.miu.eafinalproject.shoppingcart.data.*;
 import edu.miu.eafinalproject.shoppingcart.data.request.CartRequest;
 import edu.miu.eafinalproject.shoppingcart.domain.*;
+import edu.miu.eafinalproject.shoppingcart.repositories.CartItemRepository;
 import edu.miu.eafinalproject.shoppingcart.repositories.OrdersRepository;
 import edu.miu.eafinalproject.shoppingcart.repositories.ShoppingCartRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,9 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Autowired
     private OrdersRepository ordersRepository;
+
+    @Autowired
+    private CartItemRepository cartItemRepository;
 
     @Override
     @Transactional
@@ -64,7 +68,6 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         CartItem newCartItem = new CartItem();
         newCartItem.setProductNumber(productResponse.getProductNumber());
         newCartItem.setQuantity(quantity);
-        newCartItem.setCart(cart);
 
         cart.getCartItems().add(newCartItem);
 
@@ -179,9 +182,12 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             orderState = OrderState.NEW;
         }
 
-        Orders order = new Orders();
-        order.setCustomer(customerResponse);
-        order.setShippingAddress(shippingAddress);
+        // check if orders is existed, if not create new order
+        Optional<Orders> optionalOrders = ordersRepository.findFirstByCustomerId(customerId);
+
+        Orders order = optionalOrders.orElse(new Orders());
+        order.setCustomerId(customerId);
+        order.setShippingAddressId(addressId);
         order.setOrderDate(LocalDate.now());
         order.setOrderState(orderState);
 
@@ -198,35 +204,58 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             order.getOrderItems().add(orderItem);
         }
 
-        OrderDTO orderDTO = new OrderDTO();
         List<OrderItemDTO> orderItemDTOs = getOrderItemDTOs(order.getOrderItems());
 
         double totalPrice = getTotalPrice(orderItemDTOs);
 
+        order.setTotalPrice(totalPrice);
+
+        ordersRepository.save(order);
+
+        // save shopping cart
+        processSaveShoppingCart(cartRequest, customerId, totalPrice);
+
+        return getOrderDTO(shippingAddress, customerResponse, orderState, orderItemDTOs, totalPrice);
+    }
+
+    private void processSaveShoppingCart(CartRequest cartRequest, long customerId, double totalPrice) {
+        Optional<ShoppingCart> optionalShoppingCart = shoppingCartRepository.findByShoppingCartNumber(cartRequest.getShoppingCartNumber());
+        ShoppingCart shoppingCart = optionalShoppingCart.orElse(new ShoppingCart());
+
+        shoppingCart.setCartItems(getCartItems(cartRequest, shoppingCart));
+        shoppingCart.setTotalPrice(totalPrice);
+        shoppingCart.setCustomerId(customerId);
+
+        // clear cart item once it's placed
+        OrderState orderState = cartRequest.getOrderState();
+        List<Long> cartItemIds = new ArrayList<>();
+        if (orderState != null && orderState != OrderState.NEW) {
+            shoppingCart.getCartItems().clear();
+            Optional<List<CartItem>> optionalCartItems = cartItemRepository.findAllByCartId(shoppingCart.getId());
+            List<CartItem> cartItems = optionalCartItems.orElse(new ArrayList<>());
+            cartItems.forEach(cartItem -> {
+                if (cartItem.getId() != null && cartItem.getId() != 0) {
+                    cartItemIds.add(cartItem.getId());
+                }
+            });
+        }
+        cartItemRepository.deleteAllById(cartItemIds);
+
+        shoppingCartRepository.save(shoppingCart);
+    }
+
+    private OrderDTO getOrderDTO(AddressResponse shippingAddress, CustomerResponse customerResponse, OrderState orderState, List<OrderItemDTO> orderItemDTOs, double totalPrice) {
+        OrderDTO orderDTO = new OrderDTO();
         orderDTO.setOrderDate(LocalDate.now());
         orderDTO.setTotalPrice(totalPrice);
         orderDTO.setCustomer(getCustomerDTO(customerResponse));
         orderDTO.setOrderState(orderState);
         orderDTO.setOrderItems(orderItemDTOs);
         orderDTO.setShippingAddress(shippingAddress);
-
-        order.setTotalPrice(totalPrice);
-//        ordersRepository.save(order);
-
-        // save shopping cart
-        Optional<ShoppingCart> optionalShoppingCart = shoppingCartRepository.findByShoppingCartNumber(cartRequest.getShoppingCartNumber());
-        ShoppingCart shoppingCart = optionalShoppingCart.orElse(new ShoppingCart());
-        shoppingCart.setCartItems(getCartItems(cartRequest));
-        shoppingCart.setTotalPrice(totalPrice);
-        shoppingCart.setCustomerId(customerId);
-
-        shoppingCartRepository.save(shoppingCart);
-        ordersRepository.save(order);
-
         return orderDTO;
     }
 
-    private List<CartItem> getCartItems(CartRequest cartRequest) {
+    private List<CartItem> getCartItems(CartRequest cartRequest, ShoppingCart shoppingCart) {
         List<CartItem> result = new ArrayList<>();
 
         List<CartRequest.CartItemRequest> cartItems = cartRequest.getCartItems();

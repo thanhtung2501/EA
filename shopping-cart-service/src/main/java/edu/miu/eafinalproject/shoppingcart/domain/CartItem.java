@@ -1,6 +1,9 @@
 package edu.miu.eafinalproject.shoppingcart.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,10 +20,6 @@ public class CartItem {
     private Long id;
 
     private long productNumber;
-
-    @ManyToOne
-    @JoinColumn(name = "cart_id")
-    private ShoppingCart cart;
 
     private int quantity;
 

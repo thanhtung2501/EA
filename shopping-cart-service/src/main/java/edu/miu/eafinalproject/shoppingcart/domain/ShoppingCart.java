@@ -24,7 +24,8 @@ public class ShoppingCart {
 
     private long customerId;
 
-    @OneToMany(mappedBy = "cart", cascade = {CascadeType.ALL, CascadeType.PERSIST})
+    @OneToMany(cascade = {CascadeType.ALL, CascadeType.PERSIST})
+    @JoinColumn(name = "cart_id")
     private List<CartItem> cartItems = new ArrayList<>();
 
 }

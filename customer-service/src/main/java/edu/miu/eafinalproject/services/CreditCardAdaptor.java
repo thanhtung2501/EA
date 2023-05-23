@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 public class CreditCardAdaptor {
     public CreditCard convertCreditCardDtoToCreditCard(CreditCardDTO creditCardDTO){
         return CreditCard.builder()
+                .id(creditCardDTO.getId())
                 .number(creditCardDTO.getNumber())
                 .expirationDate(creditCardDTO.getExpirationDate())
                 .securityCode(creditCardDTO.getSecurityCode())
@@ -16,6 +17,7 @@ public class CreditCardAdaptor {
 
     public CreditCardDTO convertCreditCardToCreditCardDto(CreditCard creditCard){
        return CreditCardDTO.builder()
+               .id(creditCard.getId())
                .number(creditCard.getNumber())
                .expirationDate(creditCard.getExpirationDate())
                .securityCode(creditCard.getSecurityCode())

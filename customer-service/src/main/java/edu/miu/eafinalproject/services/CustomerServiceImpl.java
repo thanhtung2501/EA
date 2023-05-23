@@ -20,8 +20,7 @@ public class CustomerServiceImpl implements CustomerService{
     private CustomerAdapter customerAdapter;
 
     @Override
-    public CustomerDTO createOrCustomer(CustomerDTO customerDTO) {
-        Customer customer = customerAdapter.convertCustomerDTOToCustomer(customerDTO);
+    public CustomerDTO createOrCustomer(Customer customer) {
         Customer customerResponse =  customerRepository.save(customer);
         return customerAdapter.convertCustomerToCustomerDTO(customerResponse);
     }

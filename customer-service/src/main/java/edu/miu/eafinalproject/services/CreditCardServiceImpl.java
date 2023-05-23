@@ -23,8 +23,8 @@ public class CreditCardServiceImpl implements CreditCardService{
     }
 
     @Override
-    public CreditCardDTO updateCreditCard(CreditCardDTO creditCardDTO) {
-        CreditCard saved = cardRepository.save(cardAdaptor.convertCreditCardDtoToCreditCard(creditCardDTO));
+    public CreditCardDTO updateCreditCard(CreditCard creditCard) {
+        CreditCard saved = cardRepository.save(creditCard);
         return cardAdaptor.convertCreditCardToCreditCardDto(saved);
     }
 
@@ -43,8 +43,8 @@ public class CreditCardServiceImpl implements CreditCardService{
     }
 
     @Override
-    public CreditCardDTO addCreditCard(CreditCardDTO creditCardDTO) {
-        CreditCard card = cardRepository.save(cardAdaptor.convertCreditCardDtoToCreditCard(creditCardDTO));
+    public CreditCardDTO addCreditCard(CreditCard creditCard) {
+        CreditCard card = cardRepository.save(creditCard);
         return cardAdaptor.convertCreditCardToCreditCardDto(card);
     }
 }

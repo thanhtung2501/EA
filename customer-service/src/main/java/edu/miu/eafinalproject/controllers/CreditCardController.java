@@ -1,6 +1,7 @@
 package edu.miu.eafinalproject.controllers;
 
 import edu.miu.eafinalproject.data.CreditCardDTO;
+import edu.miu.eafinalproject.domain.CreditCard;
 import edu.miu.eafinalproject.services.CreditCardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -25,8 +26,8 @@ public class CreditCardController {
     }
 
     @PostMapping
-    public ResponseEntity<CreditCardDTO> addCreditCard(@RequestBody CreditCardDTO creditCardDTO){
-        return ResponseEntity.ok(creditCardService.addCreditCard(creditCardDTO));
+    public ResponseEntity<CreditCardDTO> addCreditCard(@RequestBody CreditCard creditCard){
+        return ResponseEntity.ok(creditCardService.addCreditCard(creditCard));
     }
     @DeleteMapping("/{id}")
     public void deleteCreditCard(@PathVariable Long id){
@@ -34,8 +35,8 @@ public class CreditCardController {
     }
 
     @PutMapping
-    public ResponseEntity<CreditCardDTO> updateCreditCard(@RequestBody CreditCardDTO creditCardDTO){
-        return ResponseEntity.ok(creditCardService.updateCreditCard(creditCardDTO));
+    public ResponseEntity<CreditCardDTO> updateCreditCard(@RequestBody CreditCard creditCard){
+        return ResponseEntity.ok(creditCardService.updateCreditCard(creditCard));
     }
 
 }

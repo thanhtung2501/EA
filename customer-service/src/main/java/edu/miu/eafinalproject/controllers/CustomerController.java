@@ -21,7 +21,7 @@ public class CustomerController {
     }
 
     @GetMapping("/{customerId}")
-    public ResponseEntity<CustomerDTO> createCustomer(@PathVariable Long customerId) {
+    public ResponseEntity<CustomerDTO> createCustomer(@PathVariable("customerId") Long customerId) {
         return ResponseEntity.ok(customerService.getCustomerByCustomerId(customerId));
     }
 
@@ -31,7 +31,7 @@ public class CustomerController {
     }
 
     @DeleteMapping("/{customerId}")
-    public void deleteCustomer(@PathVariable Long customerId) {
+    public void deleteCustomer(@PathVariable("customerId") Long customerId) {
         customerService.deleteCustomer(customerId);
     }
 

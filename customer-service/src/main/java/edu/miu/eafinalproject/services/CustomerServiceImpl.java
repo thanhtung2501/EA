@@ -28,7 +28,7 @@ public class CustomerServiceImpl implements CustomerService{
     @Override
     public CustomerDTO getCustomerByCustomerId(Long customerId) {
         Optional<Customer> optionalCustomer = customerRepository.findById(customerId);
-        Customer customer = optionalCustomer.orElse(new Customer());
+        Customer customer = optionalCustomer.orElse(null);
         return customerAdapter.convertCustomerToCustomerDTO(customer);
     }
 

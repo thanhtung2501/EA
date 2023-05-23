@@ -62,7 +62,6 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         ProductResponse productResponse = productServiceFeignClient.findByProductNumber(productNumber);
 
         CartItem newCartItem = new CartItem();
-//        newCartItem.setProduct(product);
         newCartItem.setProductNumber(productResponse.getProductNumber());
         newCartItem.setQuantity(quantity);
         newCartItem.setCart(cart);
@@ -133,11 +132,10 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Override
     @Transactional
-    public OrderDTO checkoutCart(CartRequest cartRequest, OrderState orderState) throws Exception {
-        Long customerId = cartRequest.getCustomerId();
+    public OrderDTO processCart(CartRequest cartRequest) throws Exception {
+        long customerId = cartRequest.getCustomerId();
         List<CartRequest.CartItemRequest> cartItems = cartRequest.getCartItems();
 
-//        Optional<Address> optionalAddress = addressRepository.findById(cartRequest.getShippingAddressId());
 //        Address shippingAddress = optionalAddress.orElse(new Address());
         AddressResponse shippingAddressResponse = new AddressResponse();
         shippingAddressResponse.setAddressType(AddressType.SHIPPING);
@@ -152,6 +150,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         order.setCustomerResponse(customerResponse);
         order.setShippingAddressResponse(shippingAddressResponse);
 
+        OrderState orderState = cartRequest.getOrderState();
         if (orderState == null) {
             order.setOrderState(OrderState.NEW);
         } else {
@@ -179,9 +178,9 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         orderDTO.setOrderDate(LocalDate.now());
         orderDTO.setTotalPrice(getTotalPrice(orderItemDTOs));
         orderDTO.setCustomer(getCustomerDTO(customerResponse));
-        orderDTO.setOrderState(OrderState.NEW);
+        orderDTO.setOrderState(orderState);
         orderDTO.setOrderItems(orderItemDTOs);
-        orderDTO.setShippingAddressResponse(shippingAddressResponse);
+        orderDTO.setShippingAddress(shippingAddressResponse);
 
         return orderDTO;
     }

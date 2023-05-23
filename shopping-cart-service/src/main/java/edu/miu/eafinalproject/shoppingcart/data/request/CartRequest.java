@@ -7,16 +7,16 @@ import java.util.List;
 
 @Data
 public class CartRequest {
-    private Long customerId;
-    private Long shoppingCartNumber;
-    private Long shippingAddressId;
+    private long customerId;
+    private long shoppingCartNumber;
+    private long shippingAddressId;
     private OrderState orderState;
     private List<CartItemRequest> cartItems;
 
     @Data
     public static class CartItemRequest {
-        private Long productNumber;
-        private Integer quantity;
+        private long productNumber;
+        private int quantity;
         private double discountValue;
     }
 }

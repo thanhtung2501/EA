@@ -10,5 +10,5 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface CustomerServiceFeignClient {
 	
 	@GetMapping(value = "/customers/{customerId}")
-    CustomerResponse findByCustomerId(@PathVariable("customerId") Long customerId);
+    CustomerResponse findByCustomerId(@PathVariable("customerId") long customerId);
 }

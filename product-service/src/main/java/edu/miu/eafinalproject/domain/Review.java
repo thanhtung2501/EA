@@ -20,10 +20,7 @@ public class Review {
     private String description;
     private int stars;
     private LocalDate date;
-
-    @ManyToOne
-    @JoinColumn(name = "customer_id")
-    private Customer customer;
+    private long customerId;
 
     @ManyToOne
     @JoinColumn(name = "product_id")

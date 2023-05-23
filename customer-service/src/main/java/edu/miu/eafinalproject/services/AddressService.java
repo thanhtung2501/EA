@@ -1,7 +1,8 @@
 package edu.miu.eafinalproject.services;
 
-import edu.miu.eafinalproject.domain.Address;
+import edu.miu.eafinalproject.data.AddressDTO;
 
 public interface AddressService {
-    Address createOrUpdateAddress(Address address);
+    AddressDTO createOrUpdateAddress(AddressDTO addressDTO);
+    AddressDTO getAddressById(long addressId);
 }

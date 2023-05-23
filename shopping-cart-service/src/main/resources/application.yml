@@ -1,8 +1,17 @@
+
 spring:
-#  security:
-#    user:
-#      name: admin
-#      password: password
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connectTimeout: 5000
+            readTimeout: 5000
+            loggerLevel: basic
+  security:
+    user:
+      name: admin
+      password: password
   jpa:
     properties:
       hibernate:

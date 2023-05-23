@@ -1,9 +1,11 @@
 package edu.miu.eafinalproject.data;
 
 import edu.miu.eafinalproject.domain.AddressType;
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 public class AddressDTO {
     private Long id;
 

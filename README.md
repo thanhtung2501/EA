@@ -3,6 +3,7 @@
 ## Spring boot
 ## Feign Client
 ## Spring cloud
+## JWT
 
 # Flow from client/browser to server
 ## All request from client/browser will go through APIGateway. APIGateway will route the traffic to individual service

@@ -4,18 +4,20 @@ import edu.miu.eafinalproject.domain.Customer;
 import edu.miu.eafinalproject.domain.Product;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
 @Data
-@Builder
+@NoArgsConstructor
 public class ReviewDTO {
+    private Long id;
     private String title;
     private String description;
     private int stars;
     private LocalDate date;
 
-    private Customer customer;
+    private Customer2DTO customer;
 
-    private Product product;
+    private ProductDTO product;
 }

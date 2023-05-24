@@ -1,12 +1,9 @@
 package edu.miu.eafinalproject.data;
 
-import lombok.Builder;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
-@Builder
-public class CustomerDTO {
+@NoArgsConstructor
+public class Customer2DTO {
     private Long id;
 
     private String firstName;

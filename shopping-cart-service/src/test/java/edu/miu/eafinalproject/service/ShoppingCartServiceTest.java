@@ -24,13 +24,13 @@ public class ShoppingCartServiceTest {
     @TestConfiguration
     static class ShoppingCartServiceImplTestContextConfiguration {
         @Bean
-        public ShoppingCartService shoppingCartService() {
+        public ShoppingCartService shoppingCartServiceTest() {
             return new ShoppingCartServiceImpl();
         }
     }
 
     @Autowired
-    private ShoppingCartService shoppingCartService;
+    private ShoppingCartService shoppingCartServiceTest;
 
     @MockBean
     private ShoppingCartRepository shoppingCartRepository;
@@ -54,7 +54,7 @@ public class ShoppingCartServiceTest {
     @Test
     public void whenValidCustomerNumberThenCustomerShouldBeFound() {
         Long shoppingCartNumber = 100L;
-        ShoppingCartDTO found = shoppingCartService.findByShoppingCartNumber(shoppingCartNumber);
+        ShoppingCartDTO found = shoppingCartServiceTest.findByShoppingCartNumber(shoppingCartNumber);
         Assertions.assertThat(found.getShoppingCartNumber()).isEqualTo(shoppingCartNumber);
     }
 }
